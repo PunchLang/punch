@@ -1,2 +1,5 @@
 build/
 external/
+*GPATH*
+*GRTAGS*
+*GTAGS*

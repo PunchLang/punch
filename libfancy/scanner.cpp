@@ -30,7 +30,7 @@ boost::optional<char> StringScanner::next_char() {
 }
 
 boost::optional<char> StringScanner::previous_char() {
-  if ((this->index - 1) >= 0) {
+  if ((this->index) > 0) {
     return this->chars.at(this->index - 1);
   }
   else {
@@ -60,8 +60,7 @@ LineScanner::LineScanner(const std::string& file) :
 {
   std::ifstream infile(file);
 
-  std::string line;
-  while (std::getline(infile, line)) {
+  for(std::string line; std::getline(infile, line);) {
     std::vector<char> chars(line.begin(), line.end());
     this->lines.push_back(std::make_tuple(line.size(), chars));
   }
@@ -131,7 +130,7 @@ void LineScanner::pop() {
 
 void LineScanner::flush_line() {
 
-  this->previous = this->current;
+  this->previous = std::make_tuple(std::get<0>(this->current) + 1,  -1);
   this->current = std::make_tuple(std::get<0>(this->current) + 1,  0);
   this->next = std::make_tuple(std::get<0>(this->next) + 1, 1);
 }

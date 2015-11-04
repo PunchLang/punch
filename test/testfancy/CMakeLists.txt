@@ -9,8 +9,10 @@
 SET(CXX_LINK_FLAGS "-lpthread")
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CXX_LINK_FLAGS}" )
 
-file(GLOB testfancy_source *.cpp)
+file(GLOB resources "resources/*")
+file(COPY ${resources} DESTINATION resources)
 
+file(GLOB testfancy_source *.cpp)
 add_executable(testfancy ${testfancy_source})
 
 target_link_libraries(testfancy
