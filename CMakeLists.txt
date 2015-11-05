@@ -15,6 +15,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+find_package(Boost 1.59.0 REQUIRED)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 add_subdirectory(libfancy)
 add_subdirectory(main)
 add_subdirectory(test)
