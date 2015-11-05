@@ -4,7 +4,7 @@ set -evx
 
 mkdir -p external
 
-cd lib
+cd external
 if [ ! -d "googletest" ]; then
     git clone https://github.com/google/googletest.git googletest
     rm -rf googletest/.git
