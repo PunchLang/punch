@@ -1,0 +1,26 @@
+language: cpp
+
+compiler:
+  - clang
+
+addons:
+  apt:
+    sources:
+    - kalakris-cmake
+    - boost-latest
+    - llvm-toolchain-precise
+    - ubuntu-toolchain-r-test
+    packages:
+    - clang-3.8
+    - llvm-3.8-dev
+    - libboost-all-dev
+    - cmake
+
+install:
+  - ./setup.sh
+  - mkdir build && cd build
+
+
+script:
+  - cmake -D CMAKE_C_COMPILER=clang-3.8 -D CMAKE_CXX_COMPILER=clang++-3.8 ../
+  - make all test

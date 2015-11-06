@@ -6,7 +6,8 @@
 #   the terms of this license.
 #   You must not remove this notice, or any other, from this software.
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
+SET(CMAKE_COLOR_MAKEFILE ON)
 project(fancy)
 
 enable_testing()
@@ -15,7 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Boost 1.59.0 REQUIRED)
+find_package(Boost 1.46.1 REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
