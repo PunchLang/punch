@@ -6,7 +6,7 @@
 #   the terms of this license.
 #   You must not remove this notice, or any other, from this software.
 
-SET(CXX_LINK_FLAGS "-lpthread")
+SET(CXX_LINK_FLAGS "-pthread")
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CXX_LINK_FLAGS}" )
 
 file(GLOB resources "resources/*")
