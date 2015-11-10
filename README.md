@@ -1,4 +1,4 @@
-fancy
+fancy [![Build Status](https://travis-ci.org/RaymondKroon/fancy.svg)](https://travis-ci.org/RaymondKroon/fancy)
 =========
 
 ## Build
