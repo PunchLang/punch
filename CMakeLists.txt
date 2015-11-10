@@ -7,6 +7,7 @@
 #   You must not remove this notice, or any other, from this software.
 
 cmake_minimum_required(VERSION 3.2)
+SET(CMAKE_COLOR_MAKEFILE ON)
 project(fancy)
 
 enable_testing()
