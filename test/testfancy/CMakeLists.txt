@@ -16,8 +16,8 @@ file(GLOB testfancy_source *.cpp)
 add_executable(testfancy ${testfancy_source})
 
 target_link_libraries(testfancy
-    libgtest
-    libgmock
+    gtest gtest_main
+    gmock gmock_main
     libfancy
 )
 

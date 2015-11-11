@@ -2,9 +2,9 @@
 
 set -evx
 
-mkdir -p external
+mkdir -p test/lib
 
-cd external
+cd test/lib
 if [ ! -d "googletest" ]; then
     git clone https://github.com/google/googletest.git googletest
     rm -rf googletest/.git

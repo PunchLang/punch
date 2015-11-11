@@ -1,5 +1,6 @@
 build/
-external/
+test/lib/googletest
 *GPATH*
 *GRTAGS*
 *GTAGS*
+.idea

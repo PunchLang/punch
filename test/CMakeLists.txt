@@ -7,44 +7,15 @@
 #   You must not remove this notice, or any other, from this software.
 
 find_package(Threads REQUIRED)
-include(ExternalProject)
 
-ExternalProject_Add(
-    gtest
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/googletest/googletest/"
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
-    # Disable install step
-    INSTALL_COMMAND   ""
-    LOG_CONFIGURE ON
-    LOG_BUILD ON
-)
+set(gtest_SOURCE_DIR "${CMAKE_SOURCE_DIR}/test/lib/googletest/googletest/")
+include_directories(${gtest_SOURCE_DIR}/include)
 
-ExternalProject_Get_Property(gtest source_dir binary_dir)
-add_library(libgtest      IMPORTED STATIC GLOBAL)
-set_target_properties(libgtest PROPERTIES
-  IMPORTED_LOCATION ${binary_dir}/libgtest.a
-)
+# Skip googletest because googlemock is an extension of it
+#add_subdirectory(${gtest_SOURCE_DIR})
 
-add_dependencies(libgtest      gtest)
-
-include_directories("${source_dir}/include")
-
-ExternalProject_Add(
-    gmock
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/googletest/googlemock/"
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gmock
-    # Disable install step
-    INSTALL_COMMAND ""
-)
-
-ExternalProject_Get_Property(gmock source_dir binary_dir)
-add_library(libgmock      IMPORTED STATIC GLOBAL)
-set_target_properties(libgmock PROPERTIES
-  IMPORTED_LOCATION ${binary_dir}/libgmock.a
-)
-
-add_dependencies(libgmock      googletest)
-
-include_directories("${source_dir}/include")
+set(gmock_SOURCE_DIR "${CMAKE_SOURCE_DIR}/test/lib/googletest/googlemock/")
+include_directories(${gmock_SOURCE_DIR}/include)
+add_subdirectory(${gmock_SOURCE_DIR})
 
 add_subdirectory(testfancy)
