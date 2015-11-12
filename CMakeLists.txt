@@ -12,7 +12,7 @@ project(fancy)
 
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") # -fsanitize=address")
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
