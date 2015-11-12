@@ -8,8 +8,8 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#ifndef _SCANNER_H_
-#define _SCANNER_H_
+#ifndef _FANCY_SCANNER_H_
+#define _FANCY_SCANNER_H_
 
 #include <string>
 #include <vector>
@@ -25,7 +25,6 @@ class Scanner
 {
 public:
   virtual ~Scanner() {}
-
   virtual boost::optional<char> current_char() = 0;
   virtual boost::optional<char> next_char() = 0;
   virtual boost::optional<char> previous_char() = 0;

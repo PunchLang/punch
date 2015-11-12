@@ -10,8 +10,7 @@ FILE(GLOB libfancy_source "*.cpp")
 
 # Declare the library
 add_library(libfancy STATIC
-    ${libfancy_source}
-)
+        ${libfancy_source})
 
 include_directories(include)
 
