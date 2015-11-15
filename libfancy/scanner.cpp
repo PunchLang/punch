@@ -40,16 +40,33 @@ boost::optional<char> StringScanner::previous_char() {
 
 void StringScanner::pop() {
   if (this->index < this->size) {
+
+    if (this->current_char() == '\n') {
+      line+=1;
+      col = 1;
+    }
+    else {
+      col+=1;
+    }
+
     this->index += 1;
   }
 }
 
 void StringScanner::flush_line() {
-  this->index = this->size;
+  while (current_char()) {
+    if (*current_char() != '\n') {
+      pop();
+    }
+    else {
+      pop();
+      break;
+    }
+  }
 }
 
 ::position StringScanner::position() {
-  return std::make_tuple(0, this->index + 1);
+  return std::make_tuple(line, col);
 }
 
 
