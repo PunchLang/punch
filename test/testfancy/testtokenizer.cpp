@@ -242,17 +242,17 @@ TEST_F(TokenizerTest, FromFile) {
                });
 
   compare_file("resources/withcomments.fc",
-               {Token::RoundOpen(pos(2,1)),
-                Token::Literal("defn", pos(2,2)),
-                Token::Literal("test", pos(2,7)),
-                Token::SquareOpen(pos(2,12)),
-                Token::Literal("a", pos(2,13)),
-                Token::SquareClose(pos(2,14)),
-                Token::RoundOpen(pos(4,4)),
-                Token::Literal("+", pos(4,5)),
-                Token::Literal("1", pos(4,7)),
-                Token::Literal("a", pos(4,9)),
-                Token::RoundClose(pos(4,10)),
-                Token::RoundClose(pos(4,11))
+               {Token::RoundOpen(pos(3,1)),
+                Token::Literal("defn", pos(3,2)),
+                Token::Literal("test", pos(3,7)),
+                Token::SquareOpen(pos(3,12)),
+                Token::Literal("a", pos(3,13)),
+                Token::SquareClose(pos(3,14)),
+                Token::RoundOpen(pos(5,4)),
+                Token::Literal("+", pos(5,5)),
+                Token::Literal("1", pos(5,7)),
+                Token::Literal("a", pos(5,9)),
+                Token::RoundClose(pos(5,10)),
+                Token::RoundClose(pos(5,11))
                });
 }
