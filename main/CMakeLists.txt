@@ -13,5 +13,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 add_executable(fancy ${main_src})
 
 target_link_libraries(fancy
-    libfancy
+    libfancy ${Boost_LIBRARIES}
 )

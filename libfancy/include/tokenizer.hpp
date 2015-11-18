@@ -25,6 +25,7 @@ const char DOUBLE_QUOTE = '"';
 const char DISPATCH = '#';
 const char SEMICOLON = ';';
 const char BACKSLASH = '\\';
+const char BANG = '!';
 
 const char CURLY_OPEN = '{';
 const char CURLY_CLOSE = '}';
@@ -61,12 +62,12 @@ public:
   std::string DebugInfo() const {
     if (value.empty()) {
       return std::string(tokenTypeTranslations.at(type))
-             + " - (" + std::to_string(std::get<0>(pos)) + ", "
+             + " (" + std::to_string(std::get<0>(pos)) + ", "
              + std::to_string(std::get<1>(pos)) + ")";
     }
     else {
-      return std::string(tokenTypeTranslations.at(type)) + " - " + value
-             + " - (" + std::to_string(std::get<0>(pos)) + ", "
+      return std::string(tokenTypeTranslations.at(type)) + " " + value
+             + " (" + std::to_string(std::get<0>(pos)) + ", "
              + std::to_string(std::get<1>(pos)) + ")";
     }
   }
@@ -146,7 +147,7 @@ class Tokenizer {
 public:
 
   Tokenizer(std::unique_ptr<Scanner> &s) :
-    scanner{std::move(s)}, current(Token::None()), waiting(Token::None())
+    scanner{std::move(s)}
   { next(); }
 
   ~Tokenizer() { };
@@ -201,9 +202,9 @@ private:
   bool ready = false;
 
   std::unique_ptr<Scanner> scanner;
-  SharedToken current;
-  SharedToken waiting;
   SharedToken m_end = Token::None();
+  SharedToken current = m_end;
+  SharedToken waiting = m_end;
 };
 
 #endif //FANCY_TOKENIZER_H

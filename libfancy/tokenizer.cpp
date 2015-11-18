@@ -103,7 +103,7 @@ SharedToken Tokenizer::next() {
       ret(Token::String(slurp_until(DOUBLE_QUOTE), pos));
       scanner->pop();
     }
-    else if (c == SEMICOLON) {
+    else if (c == SEMICOLON || (c == DISPATCH && is_next(BANG))) {
       flush_line();
       continue;
     }

@@ -192,6 +192,22 @@ TEST_F(TokenizerTest, Dispatch) {
           {Token::Dispatch("ns/tag", pos(1,1)),
            Token::Literal("1234", pos(1,9))
           });
+
+  compare("aa#ns 1234",
+          {Token::Literal("aa#ns", pos(1,1)),
+           Token::Literal("1234", pos(1,7))
+          });
+
+  compare("#!ns/tag 1234",
+          {});
+
+  compare("a #!ns/tag 1234",
+          {Token::Literal("a", pos(1,1))});
+
+  compare("a#!tag 1234",
+          {Token::Literal("a#!tag", pos(1,1)),
+           Token::Literal("1234", pos(1,8))
+          });
 }
 
 TEST_F(TokenizerTest, Characters) {
