@@ -7,7 +7,7 @@ matrix:
       addons:
         apt:
           sources: ['kalakris-cmake', 'boost-latest', 'llvm-toolchain-precise', 'ubuntu-toolchain-r-test']
-          packages: ['clang-3.8', 'llvm-3.8-dev', 'libboost-all-dev', 'cmake']
+          packages: ['clang-3.8', 'llvm-3.8-dev', 'cmake']
       env: BOOST_VERSION=1.59.0 COMPILER=clang-3.8 CXXCOMPILER=clang++-3.8
 
 install:
@@ -17,21 +17,25 @@ install:
   # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/
   ############################################################################
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
 
   ############################################################################
   # Install Boost headers
   ############################################################################
-  - if [[ "${BOOST_VERSION}" == "1.57.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz"; fi
-  - if [[ "${BOOST_VERSION}" == "1.58.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz"; fi
-  - if [[ "${BOOST_VERSION}" == "1.59.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz"; fi
-  - if [[ "${BOOST_URL}" != "" ]]; then mkdir boost && travis_retry wget --quiet -O - ${BOOST_URL} | tar --strip-components=1 -xz -C boost; fi
-
   - |
-    if [[ "${BOOST_VERSION}" == "trunk" ]]; then
-      BOOST_URL="http://github.com/boostorg/boost.git"
-      travis_retry git clone --depth 1 --recursive --quiet ${BOOST_URL}
-      (cd boost && ./bootstrap.sh && ./b2 headers)
+    if [[ ! -f ${DEPS_DIR}/boost/bootstrap.sh ]]; then
+
+     if [[ "${BOOST_VERSION}" == "1.57.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz"; fi
+     if [[ "${BOOST_VERSION}" == "1.58.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz"; fi
+     if [[ "${BOOST_VERSION}" == "1.59.0" ]]; then BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz"; fi
+     if [[ "${BOOST_URL}" != "" ]]; then mkdir -p boost && travis_retry wget --quiet -O - ${BOOST_URL} | tar --strip-components=1 -xz -C boost; fi
+
+     if [[ "${BOOST_VERSION}" == "trunk" ]]; then
+       BOOST_URL="http://github.com/boostorg/boost.git"
+       travis_retry git clone --depth 1 --recursive --quiet ${BOOST_URL}
+     fi
+
+     (cd boost && ./bootstrap.sh --prefix="${DEPS_DIR}/boost" --with-libraries=program_options,filesystem,system && ./b2 -d0 install)
     fi
 
   - if [[ -d ${DEPS_DIR}/boost ]]; then CMAKE_OPTIONS+=" -DBOOST_ROOT=${DEPS_DIR}/boost"; fi
@@ -65,3 +69,7 @@ install:
 script:
   - cmake ../ -DCMAKE_C_COMPILER=$COMPILER -DCMAKE_CXX_COMPILER=$CXXCOMPILER ${CMAKE_OPTIONS}
   - make CC=$COMPILER CXX=$CXXCOMPILER all test
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps/boost
