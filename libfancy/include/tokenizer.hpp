@@ -39,9 +39,6 @@ const std::set<char> delimiters = boost::assign::list_of('{')('}')('[')(']')('('
 
 typedef std::shared_ptr<std::string> shared_string;
 
-class Token;
-typedef std::shared_ptr<Token> SharedToken;
-
 enum TokenType {
   None, // initialised value;
   Literal, RoundOpen, RoundClose, SquareOpen, SquareClose, CurlyOpen, CurlyClose,
@@ -56,7 +53,16 @@ const boost::unordered_map<TokenType, const char*> tokenTypeTranslations = boost
 class Token {
 public:
   Token(const Token &other) : type(other.type), value(std::string(other.value)), pos(position(other.pos)) {}
-  Token(const SharedToken &other) : Token(*other) { }
+
+  Token(Token&& other) : type(std::move(other.type)), value(std::move(other.value)), pos(std::move(other.pos)) {}
+  Token& operator=(Token&& other) {
+    std::swap(this->type, other.type);
+    std::swap(this->value, other.value);
+    std::swap(this->pos, other.pos);
+
+    return *this;
+  }
+
   ~Token() {};
 
   std::string DebugInfo() const {
@@ -78,60 +84,60 @@ public:
   std::string value;
   position pos;
 
-  static SharedToken None() {
-    return SharedToken(new Token(TokenType::None, "", std::make_tuple(-1,-1)));
+  static Token None() {
+    return Token(TokenType::None, "", std::make_tuple(-1,-1));
   }
 
-  static SharedToken Literal(std::string value, position pos) {
-    return SharedToken(new Token(TokenType::Literal, value, pos));
+  static Token Literal(std::string value, position pos) {
+    return Token(TokenType::Literal, value, pos);
   }
 
-  static SharedToken RoundOpen(position pos) {
-    return SharedToken(new Token(TokenType::RoundOpen, "", pos));
+  static Token RoundOpen(position pos) {
+    return Token(TokenType::RoundOpen, "", pos);
   }
 
-  static SharedToken RoundClose(position pos) {
-    return SharedToken(new Token(TokenType::RoundClose, "", pos));
+  static Token RoundClose(position pos) {
+    return Token(TokenType::RoundClose, "", pos);
   }
 
-  static SharedToken SquareOpen(position pos) {
-    return SharedToken(new Token(TokenType::SquareOpen, "", pos));
+  static Token SquareOpen(position pos) {
+    return Token(TokenType::SquareOpen, "", pos);
   }
 
-  static SharedToken SquareClose(position pos) {
-    return SharedToken(new Token(TokenType::SquareClose, "", pos));
+  static Token SquareClose(position pos) {
+    return Token(TokenType::SquareClose, "", pos);
   }
 
-  static SharedToken CurlyOpen(position pos) {
-    return SharedToken(new Token(TokenType::CurlyOpen, "", pos));
+  static Token CurlyOpen(position pos) {
+    return Token(TokenType::CurlyOpen, "", pos);
   }
 
-  static SharedToken CurlyClose(position pos) {
-    return SharedToken(new Token(TokenType::CurlyClose, "", pos));
+  static Token CurlyClose(position pos) {
+    return Token(TokenType::CurlyClose, "", pos);
   }
 
-  static SharedToken SetOpen(position pos) {
-    return SharedToken(new Token(TokenType::SetOpen, "", pos));
+  static Token SetOpen(position pos) {
+    return Token(TokenType::SetOpen, "", pos);
   }
 
-  static SharedToken FunctionOpen(position pos) {
-    return SharedToken(new Token(TokenType::FunctionOpen, "", pos));
+  static Token FunctionOpen(position pos) {
+    return Token(TokenType::FunctionOpen, "", pos);
   }
 
-  static SharedToken Dispatch(std::string value, position pos) {
-    return SharedToken(new Token(TokenType::Dispatch, value, pos));
+  static Token Dispatch(std::string value, position pos) {
+    return Token(TokenType::Dispatch, value, pos);
   }
 
-  static SharedToken String(std::string value, position pos) {
-    return SharedToken(new Token(TokenType::String, value, pos));
+  static Token String(std::string value, position pos) {
+    return Token(TokenType::String, value, pos);
   }
 
-  static SharedToken Regex(std::string value, position pos) {
-    return SharedToken(new Token(TokenType::Regex, value, pos));
+  static Token Regex(std::string value, position pos) {
+    return Token(TokenType::Regex, value, pos);
   }
 
-  static SharedToken Char(std::string value, position pos) {
-    return SharedToken(new Token(TokenType::Char, value, pos));
+  static Token Char(std::string value, position pos) {
+    return Token(TokenType::Char, value, pos);
   }
 
 private:
@@ -157,16 +163,15 @@ public:
     typedef iterator self_type;
     typedef Token value_type;
     typedef Token& reference;
-    typedef SharedToken pointer;
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
 
-    iterator(Tokenizer *parent, SharedToken current) : parent(parent), current(current) { }
+    iterator(Tokenizer *parent, Token current) : parent(parent), current(current) { }
     iterator(const self_type &other) : parent(other.parent), current(other.current) {}
 
-    self_type operator++(int junk) { self_type i(*this); current = parent->next(); return i; }
-    self_type operator++() { current = parent->next(); return *this; }
-    reference operator*() { return *current; }
+    self_type operator++(int junk) { self_type i(*this); current = std::move(parent->next()); return i; }
+    self_type operator++() { current = std::move(parent->next()); return *this; }
+    reference operator*() { return current; }
 
     bool operator==(const self_type& rhs) { return (parent == rhs.parent) && (current == rhs.current); }
 
@@ -174,7 +179,7 @@ public:
 
   private:
     Tokenizer* parent;
-    SharedToken current;
+    Token current;
   };
 
   iterator begin()
@@ -188,9 +193,9 @@ public:
   }
 
 private:
-  SharedToken next();
+  Token next();
   void mark_ready();
-  void ret(SharedToken);
+  void ret(Token);
 
   bool is_next(const char&);
   bool is_next(const std::set<char>);
@@ -202,9 +207,9 @@ private:
   bool ready = false;
 
   std::unique_ptr<Scanner> scanner;
-  SharedToken m_end = Token::None();
-  SharedToken current = m_end;
-  SharedToken waiting = m_end;
+  Token m_end = Token::None();
+  Token current = m_end;
+  Token waiting = m_end;
 };
 
 #endif //FANCY_TOKENIZER_H

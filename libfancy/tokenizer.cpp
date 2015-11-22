@@ -18,8 +18,8 @@ void Tokenizer::mark_ready() {
   ready = true;
 }
 
-void Tokenizer::ret(SharedToken token) {
-  current = token;
+void Tokenizer::ret(Token token) {
+  current = std::move(token);
   mark_ready();
 }
 
@@ -86,7 +86,7 @@ void Tokenizer::flush_line() {
   scanner->flush_line();
 }
 
-SharedToken Tokenizer::next() {
+Token Tokenizer::next() {
 
   ready = false;
 

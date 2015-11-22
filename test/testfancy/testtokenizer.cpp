@@ -33,7 +33,7 @@ std::list<Token> consume(Tokenizer& tokenizer) {
   return result;
 }
 
-void compare(std::string in, const std::initializer_list<SharedToken>& req) {
+void compare(std::string in, const std::initializer_list<Token>& req) {
   std::unique_ptr<Scanner> scanner{new StringScanner(in)};
   Tokenizer tokenizer(scanner);
   auto tokens = consume(tokenizer);
@@ -42,7 +42,7 @@ void compare(std::string in, const std::initializer_list<SharedToken>& req) {
   EXPECT_EQ(required, tokens);
 }
 
-void compare_file(std::string file, const std::initializer_list<SharedToken>& req) {
+void compare_file(std::string file, const std::initializer_list<Token>& req) {
   std::unique_ptr<Scanner> scanner{new LineScanner(file)};
   Tokenizer tokenizer(scanner);
   auto tokens = consume(tokenizer);
