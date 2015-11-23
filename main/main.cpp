@@ -15,6 +15,7 @@
 #include <boost/filesystem.hpp>
 
 #include <tokenizer.hpp>
+#include <reader.hpp>
 
 namespace po = boost::program_options;
 
