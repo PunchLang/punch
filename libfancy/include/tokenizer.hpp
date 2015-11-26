@@ -41,16 +41,27 @@ typedef std::shared_ptr<std::string> shared_string;
 
 namespace token {
 
-  enum TokenType {
+  enum class TokenType {
     EndOfFile,
     Literal, RoundOpen, RoundClose, SquareOpen, SquareClose, CurlyOpen, CurlyClose,
     SetOpen, FunctionOpen, Dispatch, String, Regex, Char
   };
 
   const boost::unordered_map<TokenType, const char *> tokenTypeTranslations = boost::assign::map_list_of
-      (EndOfFile, "EOF")(Literal, "LIT")(RoundOpen, "(")(RoundClose, ")")(SquareOpen, "[")(SquareClose, "]")
-      (CurlyOpen, "{")(CurlyClose, "}")(SetOpen, "#{")(FunctionOpen, "#(")(Dispatch, "#")(String, "STR")
-      (Regex, "#\"")(Char, "CH");
+      (TokenType::EndOfFile, "EOF")
+      (TokenType::Literal, "LIT")
+      (TokenType::RoundOpen, "(")
+      (TokenType::RoundClose, ")")
+      (TokenType::SquareOpen, "[")
+      (TokenType::SquareClose, "]")
+      (TokenType::CurlyOpen, "{")
+      (TokenType::CurlyClose, "}")
+      (TokenType::SetOpen, "#{")
+      (TokenType::FunctionOpen, "#(")
+      (TokenType::Dispatch, "#")
+      (TokenType::String, "STR")
+      (TokenType::Regex, "#\"")
+      (TokenType::Char, "CH");
 
   class Token {
   public:
@@ -81,14 +92,13 @@ namespace token {
     }
 
     bool operator==(const Token other) const;
+    bool operator!=(const Token other) const;
 
     TokenType type;
     std::string value;
     position pos;
 
-    static Token EndOfFile() {
-      return Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
-    }
+    static Token EndOfFile;
 
     static Token Literal(std::string value, position pos) {
       return Token(TokenType::Literal, value, pos);
@@ -158,48 +168,15 @@ class Tokenizer {
 
 public:
 
-  Tokenizer(std::unique_ptr<Scanner> &s) :
+  Tokenizer(std::unique_ptr<Scanner> s) :
     scanner{std::move(s)}
-  { next(); }
+  { }
 
   ~Tokenizer() { };
 
-  class iterator {
-  public:
-    typedef iterator self_type;
-    typedef Token value_type;
-    typedef Token& reference;
-    typedef std::forward_iterator_tag iterator_category;
-    typedef int difference_type;
-
-    iterator(Tokenizer *parent, Token current) : parent(parent), current(current) { }
-    iterator(const self_type &other) : parent(other.parent), current(other.current) {}
-
-    self_type operator++(int junk) { self_type i(*this); current = std::move(parent->next()); return i; }
-    self_type operator++() { current = std::move(parent->next()); return *this; }
-    reference operator*() { return current; }
-
-    bool operator==(const self_type& rhs) { return (parent == rhs.parent) && (current == rhs.current); }
-
-    bool operator!=(const self_type& rhs) { return !(*this == rhs); }
-
-  private:
-    Tokenizer* parent;
-    Token current;
-  };
-
-  iterator begin()
-  {
-    return iterator(this, current);
-  }
-
-  iterator end()
-  {
-    return iterator(this, m_end);
-  }
+  Token next();
 
 private:
-  Token next();
   void mark_ready();
   void ret(Token);
 
@@ -213,7 +190,7 @@ private:
   bool ready = false;
 
   std::unique_ptr<Scanner> scanner;
-  Token m_end = Token::EndOfFile();
+  Token m_end = Token::EndOfFile;
   Token current = m_end;
   Token waiting = m_end;
 };

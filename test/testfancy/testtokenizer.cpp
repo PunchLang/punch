@@ -26,8 +26,11 @@ public:
 
 std::list<Token> consume(Tokenizer& tokenizer) {
   std::list<Token> result;
-  for (auto it = tokenizer.begin(); it != tokenizer.end(); ++it) {
-    result.push_back(*it);
+
+  auto cur_tok = tokenizer.next();
+  while (cur_tok != Token::EndOfFile) {
+    result.push_back(cur_tok);
+    cur_tok = tokenizer.next();
   }
 
   return result;
@@ -35,7 +38,7 @@ std::list<Token> consume(Tokenizer& tokenizer) {
 
 void compare(std::string in, const std::initializer_list<Token>& req) {
   std::unique_ptr<Scanner> scanner{new StringScanner(in)};
-  Tokenizer tokenizer(scanner);
+  Tokenizer tokenizer(std::move(scanner));
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));
@@ -44,7 +47,7 @@ void compare(std::string in, const std::initializer_list<Token>& req) {
 
 void compare_file(std::string file, const std::initializer_list<Token>& req) {
   std::unique_ptr<Scanner> scanner{new LineScanner(file)};
-  Tokenizer tokenizer(scanner);
+  Tokenizer tokenizer(std::move(scanner));
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));

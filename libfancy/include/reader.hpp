@@ -12,60 +12,79 @@
 #ifndef FANCY_READER_HPP
 #define FANCY_READER_HPP
 
+#include <exception>
 #include <tokenizer.hpp>
+
+class Reader;
 
 namespace expression {
 
-  enum ExpressionType {
-    EndOfFile, Keyword, Literal, List, Map, Set, String, Vector
-  };
-
-  const boost::unordered_map<ExpressionType, const char *> expressionTypeTranslations = boost::assign::map_list_of
-      (EndOfFile,"EOF")(Keyword,":")(Literal, "LIT")(List, "()")(Map,"{}")(Set,"#{}")(String,"STR")(Vector,"[]");
+  class Expression;
+  typedef std::shared_ptr<Expression> SharedExpression;
 
   class Expression {
   public:
-    Expression(ExpressionType type) : type(std::move(type)) {}
-    Expression(const Expression &other) : type(other.type) {}
-    Expression(Expression &&other) : type(std::move(other.type)) { }
-    Expression &operator=(Expression &&other) {
-      std::swap(this->type, other.type);
 
-      return *this;
-    }
+    Expression() {}
+    virtual ~Expression() {}
 
-    virtual ~Expression();
+    virtual std::string DebugInfo() const = 0;
 
-    virtual bool startsWith(Token&);
-    virtual Expression read(std::shared_ptr<Tokenizer::iterator>);
-
-    virtual std::string DebugInfo() const {
-      return std::string(expressionTypeTranslations.at(type));
-    }
-
-    bool operator==(const Expression other) const {
-      return this->type == other.type;
-    }
-
-    ExpressionType type;
+    virtual bool equal_to(Expression*) = 0;
 
   };
 
-  inline ::std::ostream &operator<<(::std::ostream &os, const Expression &expression) {
-    return os << expression.DebugInfo();
+  inline ::std::ostream &operator<<(::std::ostream &os, const SharedExpression expression) {
+    return os << expression->DebugInfo();
   }
+
+  inline bool operator==(SharedExpression lhs, SharedExpression rhs) {
+    return lhs->equal_to(&*rhs);
+  }
+
+  inline bool operator!=(SharedExpression lhs, SharedExpression rhs) {
+    return !(lhs == rhs);
+  }
+
+  class EndOfFile : public Expression {
+  public:
+    EndOfFile() {}
+
+    std::string DebugInfo() const override {
+      return "EOF";
+    }
+
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const EndOfFile *p = dynamic_cast<EndOfFile const*>(other)) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  };
 
   class Keyword : public Expression {
   public:
-    Keyword(std::string value) : Expression(ExpressionType::Keyword), value(value) {}
-    Keyword(Keyword &&other) : Expression(std::move(other)), value(std::move(other.value)) {}
+    Keyword(std::string value) : value(value) {}
+    Keyword(Keyword &&other) : value(std::move(other.value)) {}
 
-    std::string DebugInfo() const {
-      return Expression::DebugInfo() + " (" + value + ")";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "KW (" + value + ")";
     }
 
-    bool operator==(const Keyword other) const {
-      return Expression::operator==(other) && value == other.value;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Keyword *p = dynamic_cast<Keyword const*>(other)) {
+        return value == p->value;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
@@ -74,15 +93,24 @@ namespace expression {
 
   class Literal : public Expression {
   public:
-    Literal(std::string value) : Expression(ExpressionType::Literal), value(value) {}
-    Literal(Literal &&other) : Expression(std::move(other)), value(std::move(other.value)) {}
+    Literal(std::string value) : value(value) {}
+    Literal(Literal &&other) : value(std::move(other.value)) {}
 
-    std::string DebugInfo() const {
-      return Expression::DebugInfo() + " (" + value + ")";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "LIT (" + value + ")";
     }
 
-    bool operator==(const Literal other) const {
-      return Expression::operator==(other) && value == other.value;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Literal *p = dynamic_cast<Literal const*>(other)) {
+        return value == p->value;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
@@ -91,87 +119,123 @@ namespace expression {
 
   class List : public Expression {
   public:
-    List(std::list<Expression> inner) : Expression(ExpressionType::List), inner(std::move(inner)) {}
-    List(List &&other) : Expression(std::move(other)), inner(std::move(other.inner)) {}
+    List(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    List(List &&other) : inner(std::move(other.inner)) {}
 
-    std::string DebugInfo() const {
-      auto ret  = Expression::DebugInfo() + " (";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      auto ret  = std::string("LIST (");
 
       for (auto it = inner.begin(); it != inner.end(); ++it) {
-        ret += it->DebugInfo() + ", ";
+        ret += (*it)->DebugInfo() + ", ";
       }
 
       ret += ")";
       return ret;
     }
 
-    bool operator==(const List other) const {
-      return Expression::operator==(other) && inner == other.inner;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const List *p = dynamic_cast<List const*>(other)) {
+        return inner == p->inner;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
-    std::list<Expression> inner;
+    std::list<SharedExpression> inner;
   };
 
   class Map : public Expression {
   public:
-    Map(std::list<Expression> inner) : Expression(ExpressionType::Map), inner(std::move(inner)) {}
-    Map(Map &&other) : Expression(std::move(other)), inner(std::move(other.inner)) {}
+    Map(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Map(Map &&other) : inner(std::move(other.inner)) {}
 
-    std::string DebugInfo() const {
-      auto ret  = Expression::DebugInfo() + " (";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      auto ret  = std::string("MAP (");
 
       for (auto it = inner.begin(); it != inner.end(); ++it) {
-        ret += it->DebugInfo() + ", ";
+        ret += (*it)->DebugInfo() + ", ";
       }
 
       ret += ")";
       return ret;
     }
 
-    bool operator==(const Map other) const {
-      return Expression::operator==(other) && inner == other.inner;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Map *p = dynamic_cast<Map const*>(other)) {
+        return inner == p->inner;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
-    std::list<Expression> inner;
+    std::list<SharedExpression> inner;
   };
 
   class Set : public Expression {
   public:
-    Set(std::list<Expression> inner) : Expression(ExpressionType::Set), inner(std::move(inner)) {}
-    Set(Set &&other) : Expression(std::move(other)), inner(std::move(other.inner)) {}
+    Set(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Set(Set &&other) : inner(std::move(other.inner)) {}
 
-    std::string DebugInfo() const {
-      auto ret  = Expression::DebugInfo() + " (";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override{
+      auto ret  = std::string("SET (");
 
       for (auto it = inner.begin(); it != inner.end(); ++it) {
-        ret += it->DebugInfo() + ", ";
+        ret += (*it)->DebugInfo() + ", ";
       }
 
       ret += ")";
       return ret;
     }
 
-    bool operator==(const Set other) const {
-      return Expression::operator==(other) && inner == other.inner;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Set *p = dynamic_cast<Set const*>(other)) {
+        return inner == p->inner;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
-    std::list<Expression> inner;
+    std::list<SharedExpression> inner;
   };
 
   class String : public Expression {
   public:
-    String(std::string value) : Expression(ExpressionType::String), value(value) {}
-    String(String &&other) : Expression(std::move(other)), value(std::move(other.value)) {}
+    String(std::string value) : value(value) {}
+    String(String &&other) : value(std::move(other.value)) {}
 
-    std::string DebugInfo() const {
-      return Expression::DebugInfo() + " (" + value + ")";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "STR (" + value + ")";
     }
 
-    bool operator==(const String other) const {
-      return Expression::operator==(other) && value == other.value;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const String *p = dynamic_cast<String const*>(other)) {
+        return value == p->value;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
@@ -180,26 +244,35 @@ namespace expression {
 
   class Vector : public Expression {
   public:
-    Vector(std::list<Expression> inner) : Expression(ExpressionType::Vector), inner(std::move(inner)) {}
-    Vector(Vector &&other) : Expression(std::move(other)), inner(std::move(other.inner)) {}
+    Vector(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Vector(Vector &&other) : inner(std::move(other.inner)) {}
 
-    std::string DebugInfo() const {
-      auto ret  = Expression::DebugInfo() + " (";
+    static bool accepts(Token&);
+    static SharedExpression create(Reader*);
+
+    std::string DebugInfo() const override{
+      auto ret  = std::string("VEC (");
 
       for (auto it = inner.begin(); it != inner.end(); ++it) {
-        ret += it->DebugInfo() + ", ";
+        ret += (*it)->DebugInfo() + ", ";
       }
 
       ret += ")";
       return ret;
     }
 
-    bool operator==(const Vector other) const {
-      return Expression::operator==(other) && inner == other.inner;
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Vector *p = dynamic_cast<Vector const*>(other)) {
+        return inner == p->inner;
+      }
+      else {
+        return false;
+      }
     }
 
   private:
-    std::list<Expression> inner;
+    std::list<SharedExpression> inner;
   };
 
   inline ::std::ostream &operator<<(::std::ostream &os, const Token &token) {
@@ -209,51 +282,49 @@ namespace expression {
 
 using namespace expression;
 
+class ReaderException : public std::exception {
+
+public:
+  ReaderException(std::string msg = "Could not read token") : msg(msg) {}
+
+private:
+  virtual const char* what() const throw()
+  {
+    return msg.c_str();
+  }
+
+  std::string msg;
+};
+
 class Reader {
 
 public:
-  Reader(std::unique_ptr<Tokenizer> t) : tokens{std::move(t)} {}
-  ~Reader() {}
-
-  class iterator {
-  public:
-    typedef iterator self_type;
-    typedef Expression value_type;
-    typedef Expression& reference;
-    typedef std::forward_iterator_tag iterator_category;
-    typedef int difference_type;
-
-    iterator(Reader *parent, Expression current) : parent(parent), current(std::move(current)) { }
-    iterator(const self_type &other) : parent(other.parent), current(other.current) {}
-
-    self_type operator++(int junk) { self_type i(*this); current = parent->read(); return i; }
-    self_type operator++() { current = parent->read(); return *this; }
-    reference operator*() { return current; }
-
-    bool operator==(const self_type& rhs) { return (parent == rhs.parent) && (current == rhs.current); }
-
-    bool operator!=(const self_type& rhs) { return !(*this == rhs); }
-
-  private:
-    Reader* parent;
-    Expression current;
-  };
-
-  iterator begin() {
-    return iterator(this, m_start);
+  Reader(std::unique_ptr<Tokenizer> t) : tokenizer{std::move(t)}, cur_tok(tokenizer->next()) {
   }
 
-  iterator end() {
-    return iterator(this, m_end);
+  ~Reader() {}
+
+  std::shared_ptr<Expression> next();
+
+  void pop_token() {
+    cur_tok = tokenizer->next();
+  }
+
+  Token current_token() {
+    return cur_tok;
   }
 
 private:
 
-  Expression read();
-  std::unique_ptr<Tokenizer> tokens;
+  void ret(SharedExpression expr) {
+    current = expr;
+  }
 
-  Expression m_end = Expression(ExpressionType::EndOfFile);
-  Expression m_start = m_end;
+  std::unique_ptr<Tokenizer> tokenizer;
+  Token cur_tok;
+
+  SharedExpression m_end = SharedExpression{new EndOfFile()};
+  SharedExpression current = m_end;
 };
 
 #endif //FANCY_READER_HPP

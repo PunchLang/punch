@@ -10,8 +10,14 @@
 
 #include <tokenizer.hpp>
 
+Token Token::EndOfFile = Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
+
 bool Token::operator==(const Token other) const {
   return type == other.type && value == other.value && pos == other.pos;
+}
+
+bool Token::operator!=(const Token other) const {
+  return !(*this == other);
 }
 
 void Tokenizer::mark_ready() {

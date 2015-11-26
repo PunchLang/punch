@@ -49,9 +49,11 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("input-file")) {
     std::unique_ptr<Scanner> scanner{new LineScanner(input_file)};
-    Tokenizer tokenizer(scanner);
-    for (auto it = tokenizer.begin(); it != tokenizer.end(); ++it) {
-      std::cout << (*it).DebugInfo() << ", ";
+    Tokenizer tokenizer(std::move(scanner));
+
+    auto token = tokenizer.next();
+    while (token != Token::EndOfFile) {
+      std::cout << token.DebugInfo() << ", ";
     }
   }
 
