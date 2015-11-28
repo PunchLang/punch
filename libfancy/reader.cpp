@@ -39,10 +39,10 @@ bool Vector::accepts(Token& tok) {
   return tok.type == TokenType::SquareOpen;
 }
 
-std::shared_ptr<Expression> Reader::next() {
+UExpression Reader::next() {
 
   if (cur_tok == Token::EndOfFile) {
-    return m_end;
+    return std::move(m_end);
   }
 
   if (Keyword::accepts(cur_tok)) {
@@ -71,12 +71,12 @@ std::shared_ptr<Expression> Reader::next() {
   }
 
   cur_tok = tokenizer->next();
-  return current;
+  return std::move(current);
 }
 
-std::list<SharedExpression> read_until(Reader* r, TokenType tt) {
+std::list<UExpression> read_until(Reader* r, TokenType tt) {
 
-  std::list<SharedExpression> inner;
+  std::list<UExpression> inner;
 
   while (r->current_token().type != TokenType::RoundClose) {
     inner.push_back(r->next());
@@ -85,39 +85,39 @@ std::list<SharedExpression> read_until(Reader* r, TokenType tt) {
   return inner;
 }
 
-SharedExpression Keyword::create(Reader *r) {
-  return SharedExpression(new Keyword(r->current_token().value.substr(1)));
+UExpression Keyword::create(Reader *r) {
+  return make_unique<Keyword>(r->current_token().value.substr(1));
 }
 
-SharedExpression Literal::create(Reader *r) {
-  return SharedExpression(new Literal(r->current_token().value));
+UExpression Literal::create(Reader *r) {
+  return make_unique<Literal>(r->current_token().value);
 }
 
-SharedExpression List::create(Reader *r) {
+UExpression List::create(Reader *r) {
   r->pop_token();
 
-  return SharedExpression(new List(read_until(r, TokenType::RoundClose)));
+  return make_unique<List>(read_until(r, TokenType::RoundClose));
 }
 
-SharedExpression Map::create(Reader *r) {
+UExpression Map::create(Reader *r) {
   r->pop_token();
 
-  return SharedExpression(new Map(read_until(r, TokenType::RoundClose)));
+  return make_unique<Map>(read_until(r, TokenType::RoundClose));
 }
 
-SharedExpression Set::create(Reader *r) {
+UExpression Set::create(Reader *r) {
   r->pop_token();
 
-  return SharedExpression(new Set(read_until(r, TokenType::RoundClose)));
+  return make_unique<Set>(read_until(r, TokenType::RoundClose));
 }
 
-SharedExpression String::create(Reader *r) {
-  return SharedExpression(new String(r->current_token().value));
+UExpression String::create(Reader *r) {
+  return make_unique<String>(r->current_token().value);
 }
 
-SharedExpression Vector::create(Reader *r) {
+UExpression Vector::create(Reader *r) {
   r->pop_token();
 
-  return SharedExpression(new Vector(read_until(r, TokenType::RoundClose)));
+  return make_unique<Vector>(read_until(r, TokenType::RoundClose));
 }
 

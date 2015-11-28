@@ -16,6 +16,7 @@
 
 #include <tokenizer.hpp>
 #include <reader.hpp>
+#include <util.hpp>
 
 namespace po = boost::program_options;
 
@@ -48,12 +49,12 @@ int main(int argc, char *argv[]) {
   }
 
   if (vm.count("input-file")) {
-    std::unique_ptr<Scanner> scanner{new LineScanner(input_file)};
-    Tokenizer tokenizer(std::move(scanner));
+    Tokenizer tokenizer(make_unique<LineScanner>(input_file));
 
     auto token = tokenizer.next();
     while (token != Token::EndOfFile) {
       std::cout << token.DebugInfo() << ", ";
+      token = tokenizer.next();
     }
   }
 

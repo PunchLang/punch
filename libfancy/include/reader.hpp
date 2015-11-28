@@ -14,12 +14,14 @@
 
 #include <exception>
 #include <tokenizer.hpp>
+#include <util.hpp>
 
 class Reader;
 
 namespace expression {
 
   class Expression;
+  typedef std::unique_ptr<Expression> UExpression;
   typedef std::shared_ptr<Expression> SharedExpression;
 
   class Expression {
@@ -34,8 +36,20 @@ namespace expression {
 
   };
 
-  inline ::std::ostream &operator<<(::std::ostream &os, const SharedExpression expression) {
+  inline ::std::ostream &operator<<(::std::ostream &os, const SharedExpression& expression) {
     return os << expression->DebugInfo();
+  }
+
+  inline ::std::ostream &operator<<(::std::ostream &os, const Expression* expression) {
+    return os << expression->DebugInfo();
+  }
+
+  inline bool operator==(UExpression &lhs, UExpression &rhs) {
+    return lhs->equal_to(&*rhs);
+  }
+
+  inline bool operator!=(UExpression& lhs, UExpression& rhs) {
+    return !(lhs == rhs);
   }
 
   inline bool operator==(SharedExpression lhs, SharedExpression rhs) {
@@ -71,7 +85,7 @@ namespace expression {
     Keyword(Keyword &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override {
       return "KW (" + value + ")";
@@ -97,7 +111,7 @@ namespace expression {
     Literal(Literal &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override {
       return "LIT (" + value + ")";
@@ -119,11 +133,11 @@ namespace expression {
 
   class List : public Expression {
   public:
-    List(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    List(std::list<UExpression> inner) : inner(std::move(inner)) {}
     List(List &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override {
       auto ret  = std::string("LIST (");
@@ -147,16 +161,16 @@ namespace expression {
     }
 
   private:
-    std::list<SharedExpression> inner;
+    std::list<UExpression> inner;
   };
 
   class Map : public Expression {
   public:
-    Map(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Map(std::list<UExpression> inner) : inner(std::move(inner)) {}
     Map(Map &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override {
       auto ret  = std::string("MAP (");
@@ -180,16 +194,16 @@ namespace expression {
     }
 
   private:
-    std::list<SharedExpression> inner;
+    std::list<UExpression> inner;
   };
 
   class Set : public Expression {
   public:
-    Set(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Set(std::list<UExpression> inner) : inner(std::move(inner)) {}
     Set(Set &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override{
       auto ret  = std::string("SET (");
@@ -213,7 +227,7 @@ namespace expression {
     }
 
   private:
-    std::list<SharedExpression> inner;
+    std::list<UExpression> inner;
   };
 
   class String : public Expression {
@@ -222,7 +236,7 @@ namespace expression {
     String(String &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override {
       return "STR (" + value + ")";
@@ -244,11 +258,11 @@ namespace expression {
 
   class Vector : public Expression {
   public:
-    Vector(std::list<SharedExpression> inner) : inner(std::move(inner)) {}
+    Vector(std::list<UExpression> inner) : inner(std::move(inner)) {}
     Vector(Vector &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static SharedExpression create(Reader*);
+    static UExpression create(Reader*);
 
     std::string DebugInfo() const override{
       auto ret  = std::string("VEC (");
@@ -272,7 +286,7 @@ namespace expression {
     }
 
   private:
-    std::list<SharedExpression> inner;
+    std::list<UExpression> inner;
   };
 
   inline ::std::ostream &operator<<(::std::ostream &os, const Token &token) {
@@ -304,7 +318,7 @@ public:
 
   ~Reader() {}
 
-  std::shared_ptr<Expression> next();
+  UExpression next();
 
   void pop_token() {
     cur_tok = tokenizer->next();
@@ -316,15 +330,15 @@ public:
 
 private:
 
-  void ret(SharedExpression expr) {
-    current = expr;
+  void ret(UExpression expr) {
+    current = std::move(expr);
   }
 
   std::unique_ptr<Tokenizer> tokenizer;
   Token cur_tok;
 
-  SharedExpression m_end = SharedExpression{new EndOfFile()};
-  SharedExpression current = m_end;
+  UExpression m_end = make_unique<EndOfFile>();
+  UExpression current = make_unique<EndOfFile>();
 };
 
 #endif //FANCY_READER_HPP

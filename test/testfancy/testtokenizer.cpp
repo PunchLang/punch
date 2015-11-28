@@ -12,6 +12,7 @@
 #include <list>
 #include <gtest/gtest.h>
 #include <tokenizer.hpp>
+#include <util.hpp>
 
 using boost::assign::list_of;
 
@@ -37,8 +38,7 @@ std::list<Token> consume(Tokenizer& tokenizer) {
 }
 
 void compare(std::string in, const std::initializer_list<Token>& req) {
-  std::unique_ptr<Scanner> scanner{new StringScanner(in)};
-  Tokenizer tokenizer(std::move(scanner));
+  Tokenizer tokenizer(make_unique<StringScanner>(in));
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));
@@ -46,8 +46,7 @@ void compare(std::string in, const std::initializer_list<Token>& req) {
 }
 
 void compare_file(std::string file, const std::initializer_list<Token>& req) {
-  std::unique_ptr<Scanner> scanner{new LineScanner(file)};
-  Tokenizer tokenizer(std::move(scanner));
+  Tokenizer tokenizer(make_unique<LineScanner>(file));
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));

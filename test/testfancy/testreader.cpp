@@ -12,10 +12,11 @@
 #include <list>
 #include <gtest/gtest.h>
 #include <reader.hpp>
+#include <util.hpp>
 
 using boost::assign::list_of;
 
-SharedExpression eof = SharedExpression(new EndOfFile());
+UExpression eof = make_unique<EndOfFile>();
 
 class ReaderTest : public ::testing::Test {
 public:
@@ -31,8 +32,8 @@ std::list<SharedExpression> consume(Reader& reader) {
 
   auto expr = reader.next();
   while (expr != eof) {
-    result.push_back(expr);
-    expr = std::move(reader.next());
+    result.push_back(std::move(expr));
+    expr = reader.next();
   }
 
   return result;
@@ -60,6 +61,6 @@ void compare_file(std::string file, const std::initializer_list<SharedExpression
 
 TEST_F(ReaderTest, Keyword) {
   compare(":test1",
-          {SharedExpression(new Keyword("test1"))
+          {std::make_shared<Keyword>("test1")
           });
 }

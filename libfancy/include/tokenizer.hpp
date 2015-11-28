@@ -37,8 +37,6 @@ const char SQUARE_CLOSE = ']';
 const std::set<char> whitespace = boost::assign::list_of(' ')(',')('\n')('\t')('\12');
 const std::set<char> delimiters = boost::assign::list_of('{')('}')('[')(']')('(')(')')('\\')(';')('"');
 
-typedef std::shared_ptr<std::string> shared_string;
-
 namespace token {
 
   enum class TokenType {
