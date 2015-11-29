@@ -105,6 +105,85 @@ namespace expression {
     std::string value;
   };
 
+  class Integer : public Expression {
+  public:
+    Integer(long value) : value(value) {}
+    Integer(Integer &&other) : value(std::move(other.value)) {}
+
+    static bool accepts(Token&);
+    static UExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "INT (" + std::to_string(value) + ")";
+    }
+
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Integer *p = dynamic_cast<Integer const*>(other)) {
+        return value == p->value;
+      }
+      else {
+        return false;
+      }
+    }
+
+  private:
+    long value;
+  };
+
+  class Float : public Expression {
+  public:
+    Float(double value) : value(value) {}
+    Float(Float &&other) : value(std::move(other.value)) {}
+
+    static bool accepts(Token&);
+    static UExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "FLOAT (" + std::to_string(value) + ")";
+    }
+
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Float *p = dynamic_cast<Float const*>(other)) {
+        return  std::fabs(value - p->value) < std::numeric_limits<double>::epsilon();
+      }
+      else {
+        return false;
+      }
+    }
+
+  private:
+    double value;
+  };
+
+  class Ratio : public Expression {
+  public:
+    Ratio(long n, long d) : numerator(n), denominator(d) {}
+    Ratio(Ratio &&other) : numerator(std::move(other.numerator)), denominator(std::move(other.denominator)) {}
+
+    static bool accepts(Token&);
+    static UExpression create(Reader*);
+
+    std::string DebugInfo() const override {
+      return "RATIO (" + std::to_string(numerator) + "/" + std::to_string(denominator) + ")";
+    }
+
+  protected:
+    bool equal_to(Expression* other) override {
+      if (const Ratio *p = dynamic_cast<Ratio const*>(other)) {
+        return numerator == p->numerator && denominator == p->denominator;
+      }
+      else {
+        return false;
+      }
+    }
+
+  private:
+    long numerator;
+    long denominator;
+  };
+
   class Literal : public Expression {
   public:
     Literal(std::string value) : value(value) {}

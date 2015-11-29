@@ -19,6 +19,7 @@ target_link_libraries(testfancy
     gtest gtest_main
     gmock gmock_main
     libfancy
+    ${Boost_LIBRARIES}
 )
 
 add_test(NAME testfancy COMMAND testfancy)

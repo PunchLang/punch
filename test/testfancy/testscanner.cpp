@@ -39,6 +39,32 @@ TEST_F(ScannerTest, StringScannerTest) {
   EXPECT_EQ(boost::none, scanner.next_char());
 }
 
+TEST_F(ScannerTest, StringScannerPlusTest) {
+  StringScanner scanner("+2");
+
+  EXPECT_EQ('+', scanner.current_char());
+  EXPECT_EQ(boost::none, scanner.previous_char());
+  EXPECT_EQ('2', scanner.next_char());
+
+  scanner.pop();
+  EXPECT_EQ('2', scanner.current_char());
+  EXPECT_EQ('+', scanner.previous_char());
+  EXPECT_EQ(boost::none, scanner.next_char());
+}
+
+TEST_F(ScannerTest, StringScannerMinTest) {
+  StringScanner scanner("-2");
+
+  EXPECT_EQ('-', scanner.current_char());
+  EXPECT_EQ(boost::none, scanner.previous_char());
+  EXPECT_EQ('2', scanner.next_char());
+
+  scanner.pop();
+  EXPECT_EQ('2', scanner.current_char());
+  EXPECT_EQ('-', scanner.previous_char());
+  EXPECT_EQ(boost::none, scanner.next_char());
+}
+
 TEST_F(ScannerTest, LineScannerTest) {
   LineScanner scanner("resources/scanner_test.txt");
 

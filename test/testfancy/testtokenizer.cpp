@@ -224,6 +224,12 @@ TEST_F(TokenizerTest, Characters) {
           });
 }
 
+TEST_F(TokenizerTest, Numbers) {
+  compare("+2",
+          {Token::Literal("+2", pos(1,1))
+          });
+}
+
 TEST_F(TokenizerTest, FromFile) {
   compare_file("resources/simple.fc",
                {Token::RoundOpen(pos(1,1)),

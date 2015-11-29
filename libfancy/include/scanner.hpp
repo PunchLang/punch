@@ -38,7 +38,7 @@ class StringScanner : public Scanner {
 
 public:
   StringScanner(const std::string& in)
-    : chars(in.begin(), in.end()), size (in.size()), index(0), line(1), col(1) {}
+    : chars(in), size (in.size()), index(0), line(1), col(1) {}
   boost::optional<char> current_char() override;
   boost::optional<char> next_char() override;
   boost::optional<char> previous_char() override;
@@ -47,7 +47,7 @@ public:
   ::position position() override;
 
 private:
-  std::vector<char> chars;
+  std::string chars;
   uint size;
   uint index;
   uint line;
