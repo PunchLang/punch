@@ -35,7 +35,7 @@ install:
        travis_retry git clone --depth 1 --recursive --quiet ${BOOST_URL}
      fi
 
-     (cd boost && ./bootstrap.sh --prefix="${DEPS_DIR}/boost" --with-libraries=program_options,filesystem,system && ./b2 -d0 install)
+     (cd boost && ./bootstrap.sh --prefix="${DEPS_DIR}/boost" --with-libraries=program_options,filesystem,system,regex && ./b2 -d0 install)
     fi
 
   - if [[ -d ${DEPS_DIR}/boost ]]; then CMAKE_OPTIONS+=" -DBOOST_ROOT=${DEPS_DIR}/boost"; fi
