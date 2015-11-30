@@ -9,6 +9,7 @@
  */
 
 #include <tokenizer.hpp>
+#include <reader.hpp>
 
 Token Token::EndOfFile = Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
 
@@ -83,6 +84,10 @@ std::string Tokenizer::slurp_until(const char c) {
     else {
       break;
     }
+  }
+
+  if (!scanner->next_char()) {
+    throw ReaderException("Unexpected stream end");
   }
 
   return result;

@@ -39,6 +39,23 @@ std::list<SharedExpression> consume(Reader& reader) {
   return result;
 }
 
+void assert_reader_error(std::string in) {
+  try {
+    Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
+    consume(reader);
+  }
+  catch( const ReaderException& err )
+  {
+    //ASSERT_STREQ( "error message", err.what() );
+    return;
+  }
+  catch(...) {
+    FAIL() << "Expected (other exception): ReaderException";
+  }
+
+  FAIL() << "Expected ReaderException";
+}
+
 void compare(std::string in, const std::initializer_list<SharedExpression>& req) {
   Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
   auto tokens = consume(reader);
@@ -139,4 +156,135 @@ TEST_F(ReaderTest, Ratio) {
   compare("12/525",
           {std::make_shared<Ratio>(12,525)
           });
+}
+
+TEST_F(ReaderTest, Literal) {
+
+  compare("a",
+          {std::make_shared<Literal>("a")
+          });
+
+  compare("+",
+          {std::make_shared<Literal>("+")
+          });
+}
+
+TEST_F(ReaderTest, List) {
+
+  std::list<UExpression> inner1;
+  compare("()",
+          {std::make_shared<List>(inner1)
+          });
+
+  std::list<UExpression> inner2;
+  inner2.push_back(make_unique<Literal>("+"));
+  inner2.push_back(make_unique<Literal>("a"));
+  inner2.push_back(make_unique<Integer>(1));
+
+  compare("(+ a 1)",
+          {std::make_shared<List>(inner2)
+          });
+}
+
+TEST_F(ReaderTest, IncompleteList) {
+    assert_reader_error("( a a");
+}
+
+TEST_F(ReaderTest, WrongListClose) {
+  assert_reader_error("( a a })");
+  assert_reader_error("( a a ])");
+  assert_reader_error(")");
+  assert_reader_error("( a a ))");
+}
+
+TEST_F(ReaderTest, Map) {
+
+  std::list<UExpression> inner1;
+  compare("{}",
+          {std::make_shared<Map>(inner1)
+          });
+
+  std::list<UExpression> inner2;
+  inner2.push_back(make_unique<Integer>(1));
+  inner2.push_back(make_unique<Literal>("a"));
+
+  compare("{1 a}",
+          {std::make_shared<Map>(inner2)
+          });
+}
+
+TEST_F(ReaderTest, WrongMapClose) {
+  assert_reader_error("{ a a )}");
+  assert_reader_error("{ a a ]}");
+  assert_reader_error("}");
+  assert_reader_error("{ a a }}");
+}
+
+TEST_F(ReaderTest, UnevenMap) {
+  assert_reader_error("{ a a a}");
+}
+
+TEST_F(ReaderTest, Set) {
+
+  std::list<UExpression> inner1;
+  compare("#{}",
+          {std::make_shared<Set>(inner1)
+          });
+
+  std::list<UExpression> inner2;
+  inner2.push_back(make_unique<Integer>(1));
+  inner2.push_back(make_unique<Literal>("a"));
+
+  compare("#{1 a}",
+          {std::make_shared<Set>(inner2)
+          });
+}
+
+TEST_F(ReaderTest, WrongSetClose) {
+  assert_reader_error("#{ a a )}");
+  assert_reader_error("#{ a a ]}");
+  assert_reader_error("}");
+  assert_reader_error("#{ a a }}");
+}
+
+TEST_F(ReaderTest, String) {
+  compare("\"test1\"",
+          {std::make_shared<String>("test1")
+          });
+}
+
+TEST_F(ReaderTest, WrongStringClose) {
+  assert_reader_error("\"open string");
+}
+
+TEST_F(ReaderTest, Vector) {
+
+  std::list<UExpression> inner1;
+  compare("[]",
+          {std::make_shared<Vector>(inner1)
+          });
+
+  std::list<UExpression> inner2;
+  inner2.push_back(make_unique<Integer>(1));
+  inner2.push_back(make_unique<Literal>("a"));
+
+  compare("[1 a]",
+          {std::make_shared<Vector>(inner2)
+          });
+}
+
+TEST_F(ReaderTest, WrongVectorClose) {
+  assert_reader_error("[ a a )]");
+  assert_reader_error("[ a a }]");
+  assert_reader_error("]");
+  assert_reader_error("[ a a ]]");
+}
+
+TEST_F(ReaderTest, InterleavedErrors) {
+  assert_reader_error("([)]");
+  assert_reader_error("({)}");
+  assert_reader_error("[(])");
+  assert_reader_error("#{[}]");
+  assert_reader_error("#{(})");
+  assert_reader_error("{({)}{][)");
 }

@@ -45,6 +45,9 @@ namespace token {
     SetOpen, FunctionOpen, Dispatch, String, Regex, Char
   };
 
+  const std::set<TokenType> closeTypes = boost::assign::list_of
+      (TokenType::RoundClose)(TokenType::CurlyClose)(TokenType::SquareClose);
+
   const boost::unordered_map<TokenType, const char *> tokenTypeTranslations = boost::assign::map_list_of
       (TokenType::EndOfFile, "EOF")
       (TokenType::Literal, "LIT")

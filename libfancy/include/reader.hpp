@@ -13,6 +13,7 @@
 #define FANCY_READER_HPP
 
 #include <exception>
+#include <algorithm>
 #include <tokenizer.hpp>
 #include <util.hpp>
 
@@ -44,19 +45,19 @@ namespace expression {
     return os << expression->DebugInfo();
   }
 
-  inline bool operator==(UExpression &lhs, UExpression &rhs) {
+  inline bool operator==(const UExpression &lhs, const UExpression &rhs) {
     return lhs->equal_to(&*rhs);
   }
 
-  inline bool operator!=(UExpression& lhs, UExpression& rhs) {
+  inline bool operator!=(const UExpression& lhs, const UExpression& rhs) {
     return !(lhs == rhs);
   }
 
-  inline bool operator==(SharedExpression lhs, SharedExpression rhs) {
+  inline bool operator==(const SharedExpression& lhs, const SharedExpression& rhs) {
     return lhs->equal_to(&*rhs);
   }
 
-  inline bool operator!=(SharedExpression lhs, SharedExpression rhs) {
+  inline bool operator!=(const SharedExpression& lhs, const SharedExpression& rhs) {
     return !(lhs == rhs);
   }
 
@@ -212,7 +213,7 @@ namespace expression {
 
   class List : public Expression {
   public:
-    List(std::list<UExpression> inner) : inner(std::move(inner)) {}
+    List(std::list<UExpression>& inner) : inner(std::move(inner)) {}
     List(List &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
@@ -245,7 +246,7 @@ namespace expression {
 
   class Map : public Expression {
   public:
-    Map(std::list<UExpression> inner) : inner(std::move(inner)) {}
+    Map(std::list<UExpression>& inner) : inner(std::move(inner)) {}
     Map(Map &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
@@ -278,7 +279,7 @@ namespace expression {
 
   class Set : public Expression {
   public:
-    Set(std::list<UExpression> inner) : inner(std::move(inner)) {}
+    Set(std::list<UExpression>& inner) : inner(std::move(inner)) {}
     Set(Set &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
@@ -337,7 +338,7 @@ namespace expression {
 
   class Vector : public Expression {
   public:
-    Vector(std::list<UExpression> inner) : inner(std::move(inner)) {}
+    Vector(std::list<UExpression>& inner) : inner(std::move(inner)) {}
     Vector(Vector &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);

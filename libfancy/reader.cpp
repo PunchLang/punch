@@ -131,6 +131,9 @@ UExpression Reader::next() {
   else if (Vector::accepts(cur_tok)) {
     ret(Vector::create(this));
   }
+  else if (closeTypes.find(cur_tok.type) != closeTypes.end()) {
+    throw ReaderException("Closing tag without open");
+  }
   else {
     //throw ReaderException();
   }
@@ -139,15 +142,27 @@ UExpression Reader::next() {
   return std::move(current);
 }
 
-std::list<UExpression> read_until(Reader* r, TokenType tt) {
+template <class T>
+std::set<T> without(const std::set<T>& orig, const T& value) {
+  std::set<T> result(orig);
+  result.erase(value);
 
-  std::list<UExpression> inner;
+  return result;
+}
 
-  while (r->current_token().type != TokenType::RoundClose) {
-    inner.push_back(r->next());
+void read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_in, std::list<UExpression>& l) {
+
+  while (r->current_token().type != tt) {
+    if (r->current_token() == Token::EndOfFile) {
+      throw ReaderException(std::string("EOF, expected ") + tokenTypeTranslations.at(tt));
+    }
+
+    if (not_in.find(r->current_token().type) != not_in.end()) {
+      throw ReaderException(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " + tokenTypeTranslations.at(r->current_token().type));
+    }
+
+    l.push_back(std::move(r->next()));
   }
-
-  return inner;
 }
 
 UExpression Keyword::create(Reader *r) {
@@ -268,19 +283,38 @@ UExpression Literal::create(Reader *r) {
 UExpression List::create(Reader *r) {
   r->pop_token();
 
-  return make_unique<List>(read_until(r, TokenType::RoundClose));
+  auto without_round_close = without(closeTypes, TokenType::RoundClose);
+
+  std::list<UExpression> l;
+  read_until(r, TokenType::RoundClose, without_round_close, l);
+
+  return make_unique<List>(l);
 }
 
 UExpression Map::create(Reader *r) {
   r->pop_token();
 
-  return make_unique<Map>(read_until(r, TokenType::RoundClose));
+  auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
+
+  std::list<UExpression> l;
+  read_until(r, TokenType::CurlyClose, without_curly_close, l);
+
+  if (l.size() % 2 == 1) {
+    throw ReaderException("Map entries should be even");
+  }
+
+  return make_unique<Map>(l);
 }
 
 UExpression Set::create(Reader *r) {
   r->pop_token();
 
-  return make_unique<Set>(read_until(r, TokenType::RoundClose));
+  auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
+
+  std::list<UExpression> l;
+  read_until(r, TokenType::CurlyClose, without_curly_close, l);
+
+  return make_unique<Set>(l);
 }
 
 UExpression String::create(Reader *r) {
@@ -290,6 +324,11 @@ UExpression String::create(Reader *r) {
 UExpression Vector::create(Reader *r) {
   r->pop_token();
 
-  return make_unique<Vector>(read_until(r, TokenType::RoundClose));
+  auto without_square_close = without(closeTypes, TokenType::SquareClose);
+
+  std::list<UExpression> l;
+  read_until(r, TokenType::SquareClose, without_square_close, l);
+
+  return make_unique<Vector>(l);
 }
 
