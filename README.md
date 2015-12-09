@@ -1,4 +1,4 @@
-punch [![Build Status](https://travis-ci.org/RaymondKroon/punch.svg?branch=master)](https://travis-ci.org/RaymondKroon/punch)
+punch [![Build Status](https://travis-ci.org/PunchLang/punch.svg)](https://travis-ci.org/PunchLang/punch)
 =========
 
 ## Build
