@@ -33,7 +33,7 @@ namespace expression {
 
     virtual std::string DebugInfo() const = 0;
 
-    virtual bool equal_to(Expression*) = 0;
+    virtual bool equal_to(Expression* e) = 0;
 
   };
 
