@@ -231,7 +231,7 @@ TEST_F(TokenizerTest, Numbers) {
 }
 
 TEST_F(TokenizerTest, FromFile) {
-  compare_file("resources/simple.fc",
+  compare_file("resources/simple.p",
                {Token::RoundOpen(pos(1,1)),
                 Token::Literal("test", pos(1,2)),
                 Token::Literal("1", pos(1,7)),
@@ -240,7 +240,7 @@ TEST_F(TokenizerTest, FromFile) {
                 Token::RoundClose(pos(1,12))
                });
 
-  compare_file("resources/multiline.fc",
+  compare_file("resources/multiline.p",
                {Token::RoundOpen(pos(1,1)),
                 Token::Literal("test", pos(1,2)),
                 Token::Literal("1", pos(2,8)),
@@ -249,7 +249,7 @@ TEST_F(TokenizerTest, FromFile) {
                 Token::RoundClose(pos(3,1))
                });
 
-  compare_file("resources/withcomments.fc",
+  compare_file("resources/withcomments.p",
                {Token::RoundOpen(pos(3,1)),
                 Token::Literal("defn", pos(3,2)),
                 Token::Literal("test", pos(3,7)),

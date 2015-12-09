@@ -9,8 +9,8 @@
  */
 
 
-#ifndef FANCY_UTIL_HPP
-#define FANCY_UTIL_HPP
+#ifndef PUNCH_UTIL_HPP
+#define PUNCH_UTIL_HPP
 
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args )
@@ -18,4 +18,4 @@ std::unique_ptr<T> make_unique( Args&& ...args )
   return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
 
-#endif //FANCY_UTIL_HPP
+#endif //PUNCH_UTIL_HPP

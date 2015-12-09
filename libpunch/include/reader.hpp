@@ -9,8 +9,8 @@
  */
 
 
-#ifndef FANCY_READER_HPP
-#define FANCY_READER_HPP
+#ifndef PUNCH_READER_HPP
+#define PUNCH_READER_HPP
 
 #include <exception>
 #include <algorithm>
@@ -421,4 +421,4 @@ private:
   UExpression current = make_unique<EndOfFile>();
 };
 
-#endif //FANCY_READER_HPP
+#endif //PUNCH_READER_HPP

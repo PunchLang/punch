@@ -10,8 +10,8 @@ set(main_src main.cpp)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
-add_executable(fancy ${main_src})
+add_executable(punch ${main_src})
 
-target_link_libraries(fancy
-    libfancy ${Boost_LIBRARIES}
+target_link_libraries(punch
+    libpunch ${Boost_LIBRARIES}
 )

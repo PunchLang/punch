@@ -6,14 +6,14 @@
 #   the terms of this license.
 #   You must not remove this notice, or any other, from this software.
 
-FILE(GLOB libfancy_source "*.cpp")
+FILE(GLOB libpunch_source "*.cpp")
 
 # Declare the library
-add_library(libfancy STATIC
-        ${libfancy_source})
+add_library(libpunch STATIC
+        ${libpunch_source})
 
 include_directories(include)
 
-target_include_directories(libfancy PUBLIC
+target_include_directories(libpunch PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

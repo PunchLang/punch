@@ -1,4 +1,4 @@
-#!/usr/bin/env fancy
+#!/usr/bin/env punch
 ; It could possibly look like this
 (defn test [a]
 ;; with inline comments

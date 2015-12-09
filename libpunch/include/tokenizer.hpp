@@ -8,8 +8,8 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#ifndef FANCY_TOKENIZER_H
-#define FANCY_TOKENIZER_H
+#ifndef PUNCH_TOKENIZER_H
+#define PUNCH_TOKENIZER_H
 
 #include <boost/assign/list_of.hpp>
 #include <boost/unordered_map.hpp>
@@ -196,4 +196,4 @@ private:
   Token waiting = m_end;
 };
 
-#endif //FANCY_TOKENIZER_H
+#endif //PUNCH_TOKENIZER_H

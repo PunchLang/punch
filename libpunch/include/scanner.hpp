@@ -8,8 +8,8 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#ifndef _FANCY_SCANNER_H_
-#define _FANCY_SCANNER_H_
+#ifndef _PUNCH_SCANNER_H_
+#define _PUNCH_SCANNER_H_
 
 #include <string>
 #include <vector>

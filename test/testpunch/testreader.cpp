@@ -87,7 +87,7 @@ TEST_F(ReaderTest, Integers) {
           {std::make_shared<Integer>(2)
           });
 
-  compare_file("resources/numbers.fc",
+  compare_file("resources/numbers.p",
                {std::make_shared<Integer>(2)
                });
 

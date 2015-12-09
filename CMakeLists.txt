@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.2)
 SET(CMAKE_COLOR_MAKEFILE ON)
-project(fancy)
+project(punch)
 
 enable_testing()
 
@@ -21,6 +21,6 @@ if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-add_subdirectory(libfancy)
+add_subdirectory(libpunch)
 add_subdirectory(main)
 add_subdirectory(test)

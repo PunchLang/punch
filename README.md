@@ -1,4 +1,4 @@
-fancy [![Build Status](https://travis-ci.org/RaymondKroon/fancy.svg?branch=master)](https://travis-ci.org/RaymondKroon/fancy)
+punch [![Build Status](https://travis-ci.org/RaymondKroon/punch.svg?branch=master)](https://travis-ci.org/RaymondKroon/punch)
 =========
 
 ## Build

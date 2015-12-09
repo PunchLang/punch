@@ -18,4 +18,4 @@ set(gmock_SOURCE_DIR "${CMAKE_SOURCE_DIR}/test/lib/googletest/googlemock/")
 include_directories(${gmock_SOURCE_DIR}/include)
 add_subdirectory(${gmock_SOURCE_DIR})
 
-add_subdirectory(testfancy)
+add_subdirectory(testpunch)
