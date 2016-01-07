@@ -28,10 +28,9 @@ public:
 std::list<Token> consume(Tokenizer& tokenizer) {
   std::list<Token> result;
 
-  auto cur_tok = tokenizer.next();
-  while (cur_tok != Token::EndOfFile) {
+  Token cur_tok = Token::EndOfFile;
+  while (tokenizer.next(cur_tok)) {
     result.push_back(cur_tok);
-    cur_tok = tokenizer.next();
   }
 
   return result;

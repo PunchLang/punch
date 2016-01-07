@@ -1,4 +1,3 @@
-// -*- compile-command: "cd ../build && make"; -*-
 /*
  *   Copyright (c) 2015 Raymond Kroon. All rights reserved.
  *   The use and distribution terms for this software are covered by the
@@ -9,22 +8,6 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <iostream>
-#include <string>
-#include <tokenizer.hpp>
-#include <reader.hpp>
-#include <util.hpp>
+#include <environment.hpp>
 
-int main(int argc, char *argv[]) {
-
-  if (argc > 1) {
-    Tokenizer tokenizer(make_unique<LineScanner>(argv[1]));
-    Token token = Token::EndOfFile;
-    while (tokenizer.next(token)) {
-      std::cout << token.DebugInfo() << ", ";
-    }
-  }
-
-
-  return 0;
-}
+void LLVMEnvironment::eval(Expression& e) { };

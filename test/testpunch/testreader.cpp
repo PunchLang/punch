@@ -27,49 +27,42 @@ public:
   void TearDown() {}
 };
 
-std::list<SharedExpression> consume(Reader& reader) {
-  std::list<SharedExpression> result;
+ReaderResult consume(Reader& reader, std::list<SharedExpression>& result) {
 
-  auto expr = reader.next();
-  while (expr != eof) {
+  UExpression expr;
+  ReaderResult rr;
+  while ((rr= reader.next(expr)).is_ok()) {
     result.push_back(std::move(expr));
-    expr = reader.next();
   }
 
-  return result;
+  return rr;
 }
 
 void assert_reader_error(std::string in) {
-  try {
-    Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
-    consume(reader);
-  }
-  catch( const ReaderException& err )
-  {
-    //ASSERT_STREQ( "error message", err.what() );
-    return;
-  }
-  catch(...) {
-    FAIL() << "Expected (other exception): ReaderException";
-  }
 
-  FAIL() << "Expected ReaderException";
+  Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
+  std::list<SharedExpression> expressions;
+  ReaderResult rr = consume(reader, expressions);
+
+  EXPECT_EQ(true, !rr.is_ok());
 }
 
 void compare(std::string in, const std::initializer_list<SharedExpression>& req) {
   Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
-  auto tokens = consume(reader);
+  std::list<SharedExpression> expressions;
+  auto rr = consume(reader, expressions);
 
   std::list<SharedExpression> required(std::begin(req), std::end(req));
-  EXPECT_EQ(required, tokens);
+  EXPECT_EQ(required, expressions);
 }
 
 void compare_file(std::string file, const std::initializer_list<SharedExpression>& req) {
   Reader reader(make_unique<Tokenizer>(make_unique<LineScanner>(file)));
-  auto tokens = consume(reader);
+  std::list<SharedExpression> expressions;
+  auto rr = consume(reader, expressions);
 
   std::list<SharedExpression> required(std::begin(req), std::end(req));
-  EXPECT_EQ(required, tokens);
+  EXPECT_EQ(required, expressions);
 }
 
 TEST_F(ReaderTest, Keyword) {

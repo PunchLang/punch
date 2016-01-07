@@ -31,23 +31,12 @@ const boost::regex ratio_pattern("([-+]?[0-9]+)/([0-9]+)");
 
 bool Integer::accepts(Token& tok) {
 
-  try {
-
-    if (might_be_number(tok)) {
-      boost::smatch match;
-      return boost::regex_match(tok.value, match, int_pattern);
-    }
-
-    return false;
+  if (might_be_number(tok)) {
+    boost::smatch match;
+    return boost::regex_match(tok.value, match, int_pattern);
   }
-  catch (const boost::regex_error& e) {
-    std::cout << "regex_error caught: " << e.what() << " : " << e.code() << '\n';
-    if (e.code() == boost::regex_constants::error_brack) {
-      std::cout << "The code was error_brack\n";
-    }
 
-    return false;
-  }
+  return false;
 }
 
 bool Float::accepts(Token& tok) {
@@ -95,51 +84,67 @@ bool Vector::accepts(Token& tok) {
   return tok.type == TokenType::SquareOpen;
 }
 
-UExpression Reader::next() {
+ReaderResult OK(ReaderResult::ResultType::OK, "");
+ReaderResult END(ReaderResult::ResultType::END, "");
+ReaderResult ERR(std::string reason) {
+  return ReaderResult(ReaderResult::ResultType::ERROR, reason);
+}
+
+ReaderResult Reader::next(UExpression& expr) {
 
   if (cur_tok == Token::EndOfFile) {
-    return std::move(m_end);
+    expr = std::move(m_end);
+    return END;
   }
+
+  std::string msg;
 
   if (Keyword::accepts(cur_tok)) {
-    ret(Keyword::create(this));
+    ret(Keyword::create(this, msg));
   }
   else if (Integer::accepts(cur_tok)) {
-    ret(Integer::create(this));
+    ret(Integer::create(this, msg));
   }
   else if (Float::accepts(cur_tok)) {
-    ret(Float::create(this));
+    ret(Float::create(this, msg));
   }
   else if (Ratio::accepts(cur_tok)) {
-    ret(Ratio::create(this));
+    ret(Ratio::create(this, msg));
   }
   else if (Literal::accepts(cur_tok)) {
-    ret(Literal::create(this));
+    ret(Literal::create(this, msg));
   }
   else if (List::accepts(cur_tok)) {
-    ret(List::create(this));
+    ret(List::create(this, msg));
   }
   else if (Map::accepts(cur_tok)) {
-    ret(Map::create(this));
+    ret(Map::create(this, msg));
   }
   else if (Set::accepts(cur_tok)) {
-    ret(Set::create(this));
+    ret(Set::create(this, msg));
   }
   else if (String::accepts(cur_tok)) {
-    ret(String::create(this));
+    ret(String::create(this, msg));
   }
   else if (Vector::accepts(cur_tok)) {
-    ret(Vector::create(this));
+    ret(Vector::create(this, msg));
   }
   else if (closeTypes.find(cur_tok.type) != closeTypes.end()) {
-    throw ReaderException("Closing tag without open");
+    return ERR("Closing tag without open");
   }
   else {
-    //throw ReaderException();
+    return ERR("");
   }
 
-  cur_tok = tokenizer->next();
-  return std::move(current);
+  tokenizer->next(cur_tok);
+
+  if (current) {
+    expr = std::move(current);
+    return OK;
+  }
+  else {
+    return ERR(msg);
+  }
 }
 
 template <class T>
@@ -150,26 +155,36 @@ std::set<T> without(const std::set<T>& orig, const T& value) {
   return result;
 }
 
-void read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_in, std::list<UExpression>& l) {
+ReaderResult read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_in, std::list<UExpression>& l) {
 
   while (r->current_token().type != tt) {
     if (r->current_token() == Token::EndOfFile) {
-      throw ReaderException(std::string("EOF, expected ") + tokenTypeTranslations.at(tt));
+      return ERR(std::string("EOF, expected ") + tokenTypeTranslations.at(tt));
     }
 
     if (not_in.find(r->current_token().type) != not_in.end()) {
-      throw ReaderException(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " + tokenTypeTranslations.at(r->current_token().type));
+      return ERR(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " + tokenTypeTranslations.at(r->current_token().type));
     }
 
-    l.push_back(std::move(r->next()));
+    UExpression expr;
+    auto rr = r->next(expr);
+
+    if (rr.is_ok()) {
+      l.push_back(std::move(expr));
+    }
+    else {
+      return rr;
+    }
   }
+
+  return OK;
 }
 
-UExpression Keyword::create(Reader *r) {
+UExpression Keyword::create(Reader *r, std::string& error) {
   return make_unique<Keyword>(r->current_token().value.substr(1));
 }
 
-UExpression Integer::create(Reader *r) {
+UExpression Integer::create(Reader *r, std::string& error) {
 
   /* regex breaks first number after [+-], so we check for it and remove it*/
 
@@ -221,7 +236,8 @@ UExpression Integer::create(Reader *r) {
   }
 
   if(group == 0) {
-    throw ReaderException("Invalid integer");
+    error = "Invalid integer";
+    return make_unique<Integer>();
   }
 
   auto m = match[group];
@@ -239,7 +255,7 @@ UExpression Integer::create(Reader *r) {
   return make_unique<Integer>(value);
 }
 
-UExpression Float::create(Reader *r) {
+UExpression Float::create(Reader *r, std::string& error) {
   boost::smatch match;
   boost::regex_match(r->current_token().value, match, float_pattern);
 
@@ -255,10 +271,10 @@ UExpression Float::create(Reader *r) {
   return make_unique<Float>(d);
 }
 
-UExpression Ratio::create(Reader *r) {
+UExpression Ratio::create(Reader *r, std::string& error) {
   boost::smatch match;
-
-  boost::regex_match(r->current_token().value, match, ratio_pattern);
+  std::string input = r->current_token().value;
+  boost::regex_match(input, match, ratio_pattern);
 
   auto n = match[1];
   std::string n_str(n.first, n.second);
@@ -276,59 +292,84 @@ UExpression Ratio::create(Reader *r) {
   return make_unique<Ratio>(numerator,denominator);
 }
 
-UExpression Literal::create(Reader *r) {
+UExpression Literal::create(Reader *r, std::string& error) {
   return make_unique<Literal>(r->current_token().value);
 }
 
-UExpression List::create(Reader *r) {
+UExpression List::create(Reader *r, std::string& error) {
   r->pop_token();
 
   auto without_round_close = without(closeTypes, TokenType::RoundClose);
 
   std::list<UExpression> l;
-  read_until(r, TokenType::RoundClose, without_round_close, l);
+  ReaderResult result = read_until(r, TokenType::RoundClose, without_round_close, l);
 
-  return make_unique<List>(l);
+  if (result.is_ok()) {
+    return make_unique<List>(l);
+  }
+  else {
+    error = result.msg;
+    return make_unique<List>();
+  }
 }
 
-UExpression Map::create(Reader *r) {
+UExpression Map::create(Reader *r, std::string& error) {
   r->pop_token();
 
   auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
 
   std::list<UExpression> l;
-  read_until(r, TokenType::CurlyClose, without_curly_close, l);
+  ReaderResult result = read_until(r, TokenType::CurlyClose, without_curly_close, l);
 
   if (l.size() % 2 == 1) {
-    throw ReaderException("Map entries should be even");
+    error = "Map entries should be even";
+    return make_unique<Map>();
   }
 
-  return make_unique<Map>(l);
+  if (result.is_ok()) {
+    return make_unique<Map>(l);
+  }
+  else {
+    error = result.msg;
+    return make_unique<Map>();
+  }
 }
 
-UExpression Set::create(Reader *r) {
+UExpression Set::create(Reader *r, std::string& error) {
   r->pop_token();
 
   auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
 
   std::list<UExpression> l;
-  read_until(r, TokenType::CurlyClose, without_curly_close, l);
+  ReaderResult result = read_until(r, TokenType::CurlyClose, without_curly_close, l);
 
-  return make_unique<Set>(l);
+  if (result.is_ok()) {
+    return make_unique<Set>(l);
+  }
+  else {
+    error = result.msg;
+    return make_unique<Set>();
+  }
 }
 
-UExpression String::create(Reader *r) {
+UExpression String::create(Reader *r, std::string& error) {
   return make_unique<String>(r->current_token().value);
 }
 
-UExpression Vector::create(Reader *r) {
+UExpression Vector::create(Reader *r, std::string& error) {
   r->pop_token();
 
   auto without_square_close = without(closeTypes, TokenType::SquareClose);
 
   std::list<UExpression> l;
-  read_until(r, TokenType::SquareClose, without_square_close, l);
+  ReaderResult result = read_until(r, TokenType::SquareClose, without_square_close, l);
 
-  return make_unique<Vector>(l);
+  if (result.is_ok()) {
+    return make_unique<Vector>(l);
+  }
+  else {
+    error = result.msg;
+    return make_unique<Vector>();
+  }
 }
 

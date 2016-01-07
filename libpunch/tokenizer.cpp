@@ -11,6 +11,7 @@
 #include <tokenizer.hpp>
 #include <reader.hpp>
 
+Token Token::BeginOfFile = Token(TokenType::BeginOfFile, "", std::make_tuple(-1, -1));
 Token Token::EndOfFile = Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
 
 bool Token::operator==(const Token other) const {
@@ -46,9 +47,9 @@ bool Tokenizer::is_next(const std::set<char> cs) {
   return false;
 }
 
-std::string Tokenizer::slurp_until(const std::initializer_list<std::set<char>>& stop_lists) {
+bool Tokenizer::slurp_until(const std::initializer_list<std::set<char>>& stop_lists, std::string& result) {
 
-  std::string result;
+  result = "";
 
   while (scanner->current_char()) {
     result += *scanner->current_char();
@@ -68,11 +69,11 @@ std::string Tokenizer::slurp_until(const std::initializer_list<std::set<char>>& 
     }
   }
   ret:
-  return result;
+  return true;
 }
 
-std::string Tokenizer::slurp_until(const char c) {
-  std::string result;
+bool Tokenizer::slurp_until(const char c, std::string& result) {
+  result = "";
 
   while (scanner->current_char()) {
     result += *scanner->current_char();
@@ -86,23 +87,25 @@ std::string Tokenizer::slurp_until(const char c) {
     }
   }
 
-  if (!scanner->next_char()) {
-    throw ReaderException("Unexpected stream end");
+  if (scanner->next_char()) {
+    return true;
   }
-
-  return result;
+  else {
+    return false;
+  }
 }
 
 void Tokenizer::flush_line() {
   scanner->flush_line();
 }
 
-Token Tokenizer::next() {
+bool Tokenizer::next(Token& token) {
 
   ready = false;
 
   if (!scanner->current_char()) {
-    return m_end;
+    token = std::move(m_end);
+    return false;
   }
 
   while (scanner->current_char()) {
@@ -111,7 +114,13 @@ Token Tokenizer::next() {
     if (c == DOUBLE_QUOTE) {
       position pos = scanner->position();
       scanner->pop();
-      ret(Token::String(slurp_until(DOUBLE_QUOTE), pos));
+
+      std::string result;
+      if (!slurp_until(DOUBLE_QUOTE, result)) {
+        return false;
+      }
+
+      ret(Token::String(result, pos));
       scanner->pop();
     }
     else if (c == SEMICOLON || (c == DISPATCH && is_next(BANG))) {
@@ -124,7 +133,13 @@ Token Tokenizer::next() {
     else if (c == BACKSLASH) {
       position pos = scanner->position();
       scanner->pop();
-      ret(Token::Char(slurp_until({whitespace, delimiters}), pos));
+
+      std::string result;
+      if (!slurp_until({whitespace, delimiters}, result)) {
+        return false;
+      }
+
+      ret(Token::Char(result, pos));
     }
     else if (c == DISPATCH && is_next(CURLY_OPEN)) {
       ret(Token::SetOpen(scanner->position()));
@@ -138,13 +153,25 @@ Token Tokenizer::next() {
       position pos = scanner->position();
       scanner->pop();
       scanner->pop();
-      ret(Token::Regex(slurp_until(DOUBLE_QUOTE), pos));
+
+      std::string result;
+      if (!slurp_until(DOUBLE_QUOTE, result)) {
+        return false;
+      }
+
+      ret(Token::Regex(result, pos));
       scanner->pop();
     }
     else if (c == DISPATCH) {
       position pos = scanner->position();
       scanner->pop();
-      ret(Token::Dispatch(slurp_until({whitespace, delimiters}), pos));
+
+      std::string result;
+      if (!slurp_until({whitespace, delimiters}, result)) {
+        return false;
+      }
+
+      ret(Token::Dispatch(result, pos));
     }
     else if (c == ROUND_OPEN) {
       ret(Token::RoundOpen(scanner->position()));
@@ -166,7 +193,13 @@ Token Tokenizer::next() {
     }
     else {
       position pos = scanner->position();
-      ret(Token::Literal(slurp_until({whitespace, delimiters}), pos));
+
+      std::string result;
+      if (!slurp_until({whitespace, delimiters}, result)) {
+        return false;
+      }
+
+      ret(Token::Literal(result, pos));
     }
 
     scanner->pop();
@@ -178,9 +211,11 @@ Token Tokenizer::next() {
   }
 
   if (ready) {
-    return current;
+    token = std::move(current);
+    return true;
   }
   else {
-    return m_end;
+    token = std::move(m_end);
+    return false;
   }
 }

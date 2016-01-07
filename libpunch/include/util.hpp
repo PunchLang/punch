@@ -12,10 +12,21 @@
 #ifndef PUNCH_UTIL_HPP
 #define PUNCH_UTIL_HPP
 
+#include <memory>
+#include <boost/throw_exception.hpp>
+
+inline void boost::throw_exception(std::exception const & e) {};
+
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args )
 {
   return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
+
+template<typename T>
+std::unique_ptr<T> make_unique()
+{
+  return std::unique_ptr<T>{};
 }
 
 #endif //PUNCH_UTIL_HPP

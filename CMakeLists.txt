@@ -8,18 +8,28 @@
 
 cmake_minimum_required(VERSION 3.2)
 SET(CMAKE_COLOR_MAKEFILE ON)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
 project(punch)
 
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") # -fsanitize=address")
-
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Boost 1.59.0  COMPONENTS program_options filesystem system regex REQUIRED)
+find_package(Boost 1.59.0  COMPONENTS regex REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
+
+add_definitions(-DBOOST_NO_EXCEPT -DBOOST_EXCEPTION_DISABLE -DBOOST_NO_RTTI)
+
+find_package(LLVM 3.8 REQUIRED all-targets core mcjit native)
+if(LLVM_FOUND)
+  include_directories(${LLVM_INCLUDE_DIRS})
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${LLVM_CXXFLAGS}") # -fsanitize=address")
 
 add_subdirectory(libpunch)
 add_subdirectory(main)

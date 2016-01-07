@@ -71,7 +71,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const EndOfFile *p = dynamic_cast<EndOfFile const*>(other)) {
+      if (const EndOfFile *p = static_cast<EndOfFile const*>(other)) {
         return true;
       }
       else {
@@ -86,7 +86,7 @@ namespace expression {
     Keyword(Keyword &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "KW (" + value + ")";
@@ -94,7 +94,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Keyword *p = dynamic_cast<Keyword const*>(other)) {
+      if (const Keyword *p = static_cast<Keyword const*>(other)) {
         return value == p->value;
       }
       else {
@@ -112,7 +112,7 @@ namespace expression {
     Integer(Integer &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "INT (" + std::to_string(value) + ")";
@@ -120,7 +120,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Integer *p = dynamic_cast<Integer const*>(other)) {
+      if (const Integer *p = static_cast<Integer const*>(other)) {
         return value == p->value;
       }
       else {
@@ -138,7 +138,7 @@ namespace expression {
     Float(Float &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "FLOAT (" + std::to_string(value) + ")";
@@ -146,7 +146,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Float *p = dynamic_cast<Float const*>(other)) {
+      if (const Float *p = static_cast<Float const*>(other)) {
         return  std::fabs(value - p->value) < std::numeric_limits<double>::epsilon();
       }
       else {
@@ -164,7 +164,7 @@ namespace expression {
     Ratio(Ratio &&other) : numerator(std::move(other.numerator)), denominator(std::move(other.denominator)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "RATIO (" + std::to_string(numerator) + "/" + std::to_string(denominator) + ")";
@@ -172,7 +172,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Ratio *p = dynamic_cast<Ratio const*>(other)) {
+      if (const Ratio *p = static_cast<Ratio const*>(other)) {
         return numerator == p->numerator && denominator == p->denominator;
       }
       else {
@@ -191,7 +191,7 @@ namespace expression {
     Literal(Literal &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "LIT (" + value + ")";
@@ -199,7 +199,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Literal *p = dynamic_cast<Literal const*>(other)) {
+      if (const Literal *p = static_cast<Literal const*>(other)) {
         return value == p->value;
       }
       else {
@@ -217,7 +217,7 @@ namespace expression {
     List(List &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       auto ret  = std::string("LIST (");
@@ -232,7 +232,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const List *p = dynamic_cast<List const*>(other)) {
+      if (const List *p = static_cast<List const*>(other)) {
         return inner == p->inner;
       }
       else {
@@ -250,7 +250,7 @@ namespace expression {
     Map(Map &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       auto ret  = std::string("MAP (");
@@ -265,7 +265,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Map *p = dynamic_cast<Map const*>(other)) {
+      if (const Map *p = static_cast<Map const*>(other)) {
         return inner == p->inner;
       }
       else {
@@ -283,7 +283,7 @@ namespace expression {
     Set(Set &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override{
       auto ret  = std::string("SET (");
@@ -298,7 +298,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Set *p = dynamic_cast<Set const*>(other)) {
+      if (const Set *p = static_cast<Set const*>(other)) {
         return inner == p->inner;
       }
       else {
@@ -316,7 +316,7 @@ namespace expression {
     String(String &&other) : value(std::move(other.value)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override {
       return "STR (" + value + ")";
@@ -324,7 +324,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const String *p = dynamic_cast<String const*>(other)) {
+      if (const String *p = static_cast<String const*>(other)) {
         return value == p->value;
       }
       else {
@@ -342,7 +342,7 @@ namespace expression {
     Vector(Vector &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
-    static UExpression create(Reader*);
+    static UExpression create(Reader*, std::string& error);
 
     std::string DebugInfo() const override{
       auto ret  = std::string("VEC (");
@@ -357,7 +357,7 @@ namespace expression {
 
   protected:
     bool equal_to(Expression* other) override {
-      if (const Vector *p = dynamic_cast<Vector const*>(other)) {
+      if (const Vector *p = static_cast<Vector const*>(other)) {
         return inner == p->inner;
       }
       else {
@@ -376,32 +376,52 @@ namespace expression {
 
 using namespace expression;
 
-class ReaderException : public std::exception {
-
+class ReaderResult {
 public:
-  ReaderException(std::string msg = "Could not read token") : msg(msg) {}
 
-private:
-  virtual const char* what() const throw()
-  {
-    return msg.c_str();
+  enum ResultType {
+    OK, ERROR, END
+  };
+
+  ReaderResult() {}
+  ReaderResult(ResultType result, std::string msg) : result(result), msg(std::move(msg)) {}
+  ReaderResult(const ReaderResult& other) : result(other.result), msg(other.msg) {}
+  ReaderResult(ReaderResult&& other) : result(std::move(other.result)), msg(std::move(other.msg)) {}
+
+  ReaderResult& operator=(const ReaderResult&);
+
+  bool is_ok() {
+    return result == OK;
   }
 
+  bool is_end() {
+    return result == END;
+  }
+
+  ResultType result;
   std::string msg;
 };
+
+inline ReaderResult& ReaderResult::operator=(const ReaderResult& other) {
+  result = other.result;
+  msg = other.msg;
+
+  return *this;
+}
 
 class Reader {
 
 public:
-  Reader(std::unique_ptr<Tokenizer> t) : tokenizer{std::move(t)}, cur_tok(tokenizer->next()) {
+  Reader(std::unique_ptr<Tokenizer> t) : tokenizer{std::move(t)}, cur_tok(Token::BeginOfFile) {
+    tokenizer->next(cur_tok);
   }
 
   ~Reader() {}
 
-  UExpression next();
+  ReaderResult next(UExpression&);
 
-  void pop_token() {
-    cur_tok = tokenizer->next();
+  bool pop_token() {
+    return tokenizer->next(cur_tok);
   }
 
   Token current_token() {
@@ -415,7 +435,7 @@ private:
   }
 
   std::unique_ptr<Tokenizer> tokenizer;
-  Token cur_tok;
+  Token& cur_tok;
 
   UExpression m_end = make_unique<EndOfFile>();
   UExpression current = make_unique<EndOfFile>();

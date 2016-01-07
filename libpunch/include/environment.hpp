@@ -1,4 +1,3 @@
-// -*- compile-command: "cd ../build && make"; -*-
 /*
  *   Copyright (c) 2015 Raymond Kroon. All rights reserved.
  *   The use and distribution terms for this software are covered by the
@@ -9,22 +8,28 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <iostream>
-#include <string>
-#include <tokenizer.hpp>
+
+#ifndef PUNCH_ENVIRONMENT_HPP
+#define PUNCH_ENVIRONMENT_HPP
+
 #include <reader.hpp>
-#include <util.hpp>
+#include <llvm/IR/Value.h>
 
-int main(int argc, char *argv[]) {
+using namespace expression;
 
-  if (argc > 1) {
-    Tokenizer tokenizer(make_unique<LineScanner>(argv[1]));
-    Token token = Token::EndOfFile;
-    while (tokenizer.next(token)) {
-      std::cout << token.DebugInfo() << ", ";
-    }
-  }
+class Environment {
 
+public:
+  Environment() {}
+  virtual void eval(Expression&) = 0;
+};
 
-  return 0;
-}
+class LLVMEnvironment : public Environment {
+public:
+  LLVMEnvironment() {}
+
+  void eval(Expression&) override;
+  llvm::Value codegen(List);
+};
+
+#endif //PUNCH_ENVIRONMENT_HPP

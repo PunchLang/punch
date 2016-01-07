@@ -40,7 +40,7 @@ const std::set<char> delimiters = boost::assign::list_of('{')('}')('[')(']')('('
 namespace token {
 
   enum class TokenType {
-    EndOfFile,
+    BeginOfFile, EndOfFile,
     Literal, RoundOpen, RoundClose, SquareOpen, SquareClose, CurlyOpen, CurlyClose,
     SetOpen, FunctionOpen, Dispatch, String, Regex, Char
   };
@@ -49,6 +49,7 @@ namespace token {
       (TokenType::RoundClose)(TokenType::CurlyClose)(TokenType::SquareClose);
 
   const boost::unordered_map<TokenType, const char *> tokenTypeTranslations = boost::assign::map_list_of
+      (TokenType::BeginOfFile, "BOF")
       (TokenType::EndOfFile, "EOF")
       (TokenType::Literal, "LIT")
       (TokenType::RoundOpen, "(")
@@ -99,6 +100,7 @@ namespace token {
     std::string value;
     position pos;
 
+    static Token BeginOfFile;
     static Token EndOfFile;
 
     static Token Literal(std::string value, position pos) {
@@ -175,7 +177,7 @@ public:
 
   ~Tokenizer() { };
 
-  Token next();
+  bool next(Token&);
 
 private:
   void mark_ready();
@@ -184,8 +186,8 @@ private:
   bool is_next(const char&);
   bool is_next(const std::set<char>);
   bool is_prev_whitespace();
-  std::string slurp_until(const std::initializer_list<std::set<char>>&);
-  std::string slurp_until(const char);
+  bool slurp_until(const std::initializer_list<std::set<char>>&, std::string&);
+  bool slurp_until(const char, std::string&);
   void flush_line();
 
   bool ready = false;
