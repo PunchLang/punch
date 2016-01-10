@@ -29,4 +29,19 @@ std::unique_ptr<T> make_unique()
   return std::unique_ptr<T>{};
 }
 
+template< typename T, std::size_t sz >
+inline T* begin(T (&array)[sz]) {return array;}
+
+template< typename T, std::size_t sz >
+inline T* end  (T (&array)[sz]) {return array + sz;}
+
+struct EnumClassHash
+{
+  template <typename T>
+  std::size_t operator()(T t) const
+  {
+    return static_cast<std::size_t>(t);
+  }
+};
+
 #endif //PUNCH_UTIL_HPP

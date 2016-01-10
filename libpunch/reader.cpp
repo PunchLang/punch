@@ -16,8 +16,8 @@ bool Keyword::accepts(Token& tok) {
   return tok.type == TokenType::Literal && tok.value.find(":") == 0;
 }
 
-const std::set<char> number_start = boost::assign::list_of('0')('1')('2')('3')('4')('5')('6')('7')('8')('9');
-const std::set<char> sign_start = boost::assign::list_of('-')('+');
+const std::set<char> number_start = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+const std::set<char> sign_start = {'-', '+'};
 
 bool might_be_number(Token& tok) {
   return (tok.type == TokenType::Literal) &&

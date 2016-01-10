@@ -11,8 +11,8 @@
 #ifndef PUNCH_TOKENIZER_H
 #define PUNCH_TOKENIZER_H
 
-#include <boost/assign/list_of.hpp>
-#include <boost/unordered_map.hpp>
+#include <util.hpp>
+#include <unordered_map>
 #include <memory>
 #include <iterator>
 #include <list>
@@ -34,8 +34,8 @@ const char ROUND_CLOSE = ')';
 const char SQUARE_OPEN = '[';
 const char SQUARE_CLOSE = ']';
 
-const std::set<char> whitespace = boost::assign::list_of(' ')(',')('\n')('\t')('\12');
-const std::set<char> delimiters = boost::assign::list_of('{')('}')('[')(']')('(')(')')('\\')(';')('"');
+const std::set<char> whitespace = {' ', ',', '\n', '\t', '\12'};
+const std::set<char> delimiters = {'{', '}', '[', ']', '(', ')', '\\', ';', '"'};
 
 namespace token {
 
@@ -45,25 +45,24 @@ namespace token {
     SetOpen, FunctionOpen, Dispatch, String, Regex, Char
   };
 
-  const std::set<TokenType> closeTypes = boost::assign::list_of
-      (TokenType::RoundClose)(TokenType::CurlyClose)(TokenType::SquareClose);
+  const std::set<TokenType> closeTypes = { TokenType::RoundClose, TokenType::CurlyClose, TokenType::SquareClose };
 
-  const boost::unordered_map<TokenType, const char *> tokenTypeTranslations = boost::assign::map_list_of
-      (TokenType::BeginOfFile, "BOF")
-      (TokenType::EndOfFile, "EOF")
-      (TokenType::Literal, "LIT")
-      (TokenType::RoundOpen, "(")
-      (TokenType::RoundClose, ")")
-      (TokenType::SquareOpen, "[")
-      (TokenType::SquareClose, "]")
-      (TokenType::CurlyOpen, "{")
-      (TokenType::CurlyClose, "}")
-      (TokenType::SetOpen, "#{")
-      (TokenType::FunctionOpen, "#(")
-      (TokenType::Dispatch, "#")
-      (TokenType::String, "STR")
-      (TokenType::Regex, "#\"")
-      (TokenType::Char, "CH");
+  const std::unordered_map<TokenType, const char *, EnumClassHash> tokenTypeTranslations ({
+      {TokenType::BeginOfFile, "BOF"},
+      {TokenType::EndOfFile, "EOF"},
+      {TokenType::Literal, "LIT"},
+      {TokenType::RoundOpen, "("},
+      {TokenType::RoundClose, ")"},
+      {TokenType::SquareOpen, "["},
+      {TokenType::SquareClose, "]"},
+      {TokenType::CurlyOpen, "{"},
+      {TokenType::CurlyClose, "}"},
+      {TokenType::SetOpen, "#{"},
+      {TokenType::FunctionOpen, "#("},
+      {TokenType::Dispatch, "#"},
+      {TokenType::String, "STR"},
+      {TokenType::Regex, "#\""},
+      {TokenType::Char, "CH"}});
 
   class Token {
   public:

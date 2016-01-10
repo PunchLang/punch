@@ -8,13 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <boost/assign/list_of.hpp>
 #include <list>
 #include <gtest/gtest.h>
 #include <reader.hpp>
 #include <util.hpp>
-
-using boost::assign::list_of;
 
 UExpression eof = make_unique<EndOfFile>();
 
