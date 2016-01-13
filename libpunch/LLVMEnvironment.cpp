@@ -8,6 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
+#include <util.hpp>
 #include <environment.hpp>
+#include <reader.hpp>
 
-void LLVMEnvironment::eval(Expression& e) { };
+void LLVMEnvironment::eval(UExpression& e) {
+  e->llvm_codegen();
+};

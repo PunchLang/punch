@@ -10,7 +10,7 @@
  */
 
 #include <iostream>
-#include <string>
+#include <compiler.hpp>
 #include <tokenizer.hpp>
 #include <reader.hpp>
 #include <util.hpp>
@@ -18,11 +18,8 @@
 int main(int argc, char *argv[]) {
 
   if (argc > 1) {
-    Tokenizer tokenizer(make_unique<LineScanner>(argv[1]));
-    Token token = Token::EndOfFile;
-    while (tokenizer.next(token)) {
-      std::cout << token.DebugInfo() << ", ";
-    }
+    Compiler compiler;
+    compiler.compile_file(argv[1]);
   }
 
 

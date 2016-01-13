@@ -9,80 +9,7 @@
  */
 
 #include <reader.hpp>
-#include <string>
 #include <boost/regex.hpp>
-
-bool Keyword::accepts(Token& tok) {
-  return tok.type == TokenType::Literal && tok.value.find(":") == 0;
-}
-
-const std::set<char> number_start = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-const std::set<char> sign_start = {'-', '+'};
-
-bool might_be_number(Token& tok) {
-  return (tok.type == TokenType::Literal) &&
-      (number_start.find(tok.value.at(0)) != number_start.end() ||
-          (tok.value.length() > 1 && sign_start.find(tok.value.at(0)) != sign_start.end()));
-}
-
-const boost::regex int_pattern("([-+]?)(([0]?)|([1-9][0-9]*)|0[xX]([0-9A-Fa-f]+)|0([0-7]+)|([1-9][0-9]?)[rR]([0-9A-Za-z]+)|0[0-9]+)(N)?");
-const boost::regex float_pattern("([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)(M)?");
-const boost::regex ratio_pattern("([-+]?[0-9]+)/([0-9]+)");
-
-bool Integer::accepts(Token& tok) {
-
-  if (might_be_number(tok)) {
-    boost::smatch match;
-    return boost::regex_match(tok.value, match, int_pattern);
-  }
-
-  return false;
-}
-
-bool Float::accepts(Token& tok) {
-
-  const boost::regex float_regex(float_pattern);
-
-  if (might_be_number(tok)) {
-    return boost::regex_match(tok.value, float_regex);
-  }
-
-  return false;
-}
-
-bool Ratio::accepts(Token& tok) {
-  const boost::regex ratio_regex(ratio_pattern);
-
-  if (might_be_number(tok)) {
-    return boost::regex_match(tok.value, ratio_regex);
-  }
-
-  return false;
-}
-
-bool Literal::accepts(Token& tok) {
-  return tok.type == TokenType::Literal;
-}
-
-bool List::accepts(Token& tok) {
-  return tok.type == TokenType::RoundOpen;
-}
-
-bool Map::accepts(Token& tok) {
-  return tok.type == TokenType::CurlyOpen;
-}
-
-bool Set::accepts(Token& tok) {
-  return tok.type == TokenType::SetOpen;
-}
-
-bool String::accepts(Token& tok) {
-  return tok.type == TokenType::String;
-}
-
-bool Vector::accepts(Token& tok) {
-  return tok.type == TokenType::SquareOpen;
-}
 
 ReaderResult OK(ReaderResult::ResultType::OK, "");
 ReaderResult END(ReaderResult::ResultType::END, "");
@@ -90,7 +17,7 @@ ReaderResult ERR(std::string reason) {
   return ReaderResult(ReaderResult::ResultType::ERROR, reason);
 }
 
-ReaderResult Reader::next(UExpression& expr) {
+ReaderResult Reader::next(UExpression &expr) {
 
   if (cur_tok == Token::EndOfFile) {
     expr = std::move(m_end);
@@ -147,15 +74,16 @@ ReaderResult Reader::next(UExpression& expr) {
   }
 }
 
-template <class T>
-std::set<T> without(const std::set<T>& orig, const T& value) {
+
+template<class T>
+std::set<T> without(const std::set<T> &orig, const T &value) {
   std::set<T> result(orig);
   result.erase(value);
 
   return result;
 }
 
-ReaderResult read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_in, std::list<UExpression>& l) {
+ReaderResult read_until(Reader *r, TokenType tt, const std::set<TokenType> &not_in, std::list<UExpression> &l) {
 
   while (r->current_token().type != tt) {
     if (r->current_token() == Token::EndOfFile) {
@@ -163,7 +91,8 @@ ReaderResult read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_
     }
 
     if (not_in.find(r->current_token().type) != not_in.end()) {
-      return ERR(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " + tokenTypeTranslations.at(r->current_token().type));
+      return ERR(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " +
+                 tokenTypeTranslations.at(r->current_token().type));
     }
 
     UExpression expr;
@@ -180,11 +109,88 @@ ReaderResult read_until(Reader* r, TokenType tt, const std::set<TokenType>& not_
   return OK;
 }
 
-UExpression Keyword::create(Reader *r, std::string& error) {
+/* ACCEPTS */
+
+bool Keyword::accepts(Token &tok) {
+  return tok.type == TokenType::Literal && tok.value.find(":") == 0;
+}
+
+const std::set<char> number_start = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+const std::set<char> sign_start = {'-', '+'};
+
+bool might_be_number(Token &tok) {
+  return (tok.type == TokenType::Literal) &&
+         (number_start.find(tok.value.at(0)) != number_start.end() ||
+          (tok.value.length() > 1 && sign_start.find(tok.value.at(0)) != sign_start.end()));
+}
+
+const boost::regex int_pattern(
+    "([-+]?)(([0]?)|([1-9][0-9]*)|0[xX]([0-9A-Fa-f]+)|0([0-7]+)|([1-9][0-9]?)[rR]([0-9A-Za-z]+)|0[0-9]+)(N)?");
+const boost::regex float_pattern("([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)(M)?");
+const boost::regex ratio_pattern("([-+]?[0-9]+)/([0-9]+)");
+
+bool Integer::accepts(Token &tok) {
+
+  if (might_be_number(tok)) {
+    boost::smatch match;
+    return boost::regex_match(tok.value, match, int_pattern);
+  }
+
+  return false;
+}
+
+bool Float::accepts(Token &tok) {
+
+  const boost::regex float_regex(float_pattern);
+
+  if (might_be_number(tok)) {
+    return boost::regex_match(tok.value, float_regex);
+  }
+
+  return false;
+}
+
+bool Ratio::accepts(Token &tok) {
+  const boost::regex ratio_regex(ratio_pattern);
+
+  if (might_be_number(tok)) {
+    return boost::regex_match(tok.value, ratio_regex);
+  }
+
+  return false;
+}
+
+bool Literal::accepts(Token &tok) {
+  return tok.type == TokenType::Literal;
+}
+
+bool List::accepts(Token &tok) {
+  return tok.type == TokenType::RoundOpen;
+}
+
+bool Map::accepts(Token &tok) {
+  return tok.type == TokenType::CurlyOpen;
+}
+
+bool Set::accepts(Token &tok) {
+  return tok.type == TokenType::SetOpen;
+}
+
+bool String::accepts(Token &tok) {
+  return tok.type == TokenType::String;
+}
+
+bool Vector::accepts(Token &tok) {
+  return tok.type == TokenType::SquareOpen;
+}
+
+/* FACTORY METHODS */
+
+UExpression Keyword::create(Reader *r, std::string &error) {
   return make_unique<Keyword>(r->current_token().value.substr(1));
 }
 
-UExpression Integer::create(Reader *r, std::string& error) {
+UExpression Integer::create(Reader *r, std::string &error) {
 
   /* regex breaks first number after [+-], so we check for it and remove it*/
 
@@ -202,9 +208,8 @@ UExpression Integer::create(Reader *r, std::string& error) {
 
   //bool negate = (n.matched && std::string(n.first, n.second).compare("-") == 0);
 
-  if(match[3].matched)
-  {
-    if(match[9].matched) {
+  if (match[3].matched) {
+    if (match[9].matched) {
       // not yet bigint thingies.
       return make_unique<Integer>(0);
     }
@@ -217,25 +222,25 @@ UExpression Integer::create(Reader *r, std::string& error) {
   int group = 0;
   int radix = 10;
 
-  if(match[4].matched) {
+  if (match[4].matched) {
     radix = 10;
     group = 4;
   }
-  else if(match[5].matched) {
+  else if (match[5].matched) {
     radix = 16;
     group = 5;
   }
-  else if(match[6].matched) {
+  else if (match[6].matched) {
     radix = 8;
     group = 6;
   }
-  else if(match[8].matched) {
+  else if (match[8].matched) {
     auto r = match[7];
     radix = std::stoi(std::string(r.first, r.second));
     group = 8;
   }
 
-  if(group == 0) {
+  if (group == 0) {
     error = "Invalid integer";
     return make_unique<Integer>();
   }
@@ -244,7 +249,7 @@ UExpression Integer::create(Reader *r, std::string& error) {
   //std::cout << m.length() << " INT! " << group << " : [" << std::string(m.first, m.second)  << "] : " <<  radix << std::endl;
 
   long value = std::stol(std::string(m.first, m.second), nullptr, radix);
-  if(negate) {
+  if (negate) {
     value = -value;
   }
 
@@ -255,7 +260,7 @@ UExpression Integer::create(Reader *r, std::string& error) {
   return make_unique<Integer>(value);
 }
 
-UExpression Float::create(Reader *r, std::string& error) {
+UExpression Float::create(Reader *r, std::string &error) {
   boost::smatch match;
   boost::regex_match(r->current_token().value, match, float_pattern);
 
@@ -271,7 +276,7 @@ UExpression Float::create(Reader *r, std::string& error) {
   return make_unique<Float>(d);
 }
 
-UExpression Ratio::create(Reader *r, std::string& error) {
+UExpression Ratio::create(Reader *r, std::string &error) {
   boost::smatch match;
   std::string input = r->current_token().value;
   boost::regex_match(input, match, ratio_pattern);
@@ -289,14 +294,14 @@ UExpression Ratio::create(Reader *r, std::string& error) {
   long numerator = stol(n_str, 0, 10);
   long denominator = stol(d_str, 0, 10);
 
-  return make_unique<Ratio>(numerator,denominator);
+  return make_unique<Ratio>(numerator, denominator);
 }
 
-UExpression Literal::create(Reader *r, std::string& error) {
+UExpression Literal::create(Reader *r, std::string &error) {
   return make_unique<Literal>(r->current_token().value);
 }
 
-UExpression List::create(Reader *r, std::string& error) {
+UExpression List::create(Reader *r, std::string &error) {
   r->pop_token();
 
   auto without_round_close = without(closeTypes, TokenType::RoundClose);
@@ -313,7 +318,7 @@ UExpression List::create(Reader *r, std::string& error) {
   }
 }
 
-UExpression Map::create(Reader *r, std::string& error) {
+UExpression Map::create(Reader *r, std::string &error) {
   r->pop_token();
 
   auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
@@ -335,7 +340,7 @@ UExpression Map::create(Reader *r, std::string& error) {
   }
 }
 
-UExpression Set::create(Reader *r, std::string& error) {
+UExpression Set::create(Reader *r, std::string &error) {
   r->pop_token();
 
   auto without_curly_close = without(closeTypes, TokenType::CurlyClose);
@@ -352,11 +357,12 @@ UExpression Set::create(Reader *r, std::string& error) {
   }
 }
 
-UExpression String::create(Reader *r, std::string& error) {
+
+UExpression String::create(Reader *r, std::string &error) {
   return make_unique<String>(r->current_token().value);
 }
 
-UExpression Vector::create(Reader *r, std::string& error) {
+UExpression Vector::create(Reader *r, std::string &error) {
   r->pop_token();
 
   auto without_square_close = without(closeTypes, TokenType::SquareClose);
@@ -372,4 +378,3 @@ UExpression Vector::create(Reader *r, std::string& error) {
     return make_unique<Vector>();
   }
 }
-

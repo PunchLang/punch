@@ -44,4 +44,10 @@ struct EnumClassHash
   }
 };
 
+template <class S, class T>
+T* of_type(std::unique_ptr<S>& val) {
+  T *p = static_cast<T*>(&*val);
+  return p;
+}
+
 #endif //PUNCH_UTIL_HPP

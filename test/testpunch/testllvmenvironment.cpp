@@ -8,27 +8,24 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-
-#ifndef PUNCH_ENVIRONMENT_HPP
-#define PUNCH_ENVIRONMENT_HPP
-
+#include <gtest/gtest.h>
 #include <reader.hpp>
-#include <llvm/IR/Value.h>
+#include <environment.hpp>
+#include <util.hpp>
 
-using namespace expression;
-
-class Environment {
-
+class LLVMEnvironmentTest : public ::testing::Test {
 public:
-  Environment() {}
-  virtual void eval(UExpression&) = 0;
+  LLVMEnvironmentTest() {}
+  ~LLVMEnvironmentTest() {}
+
+  void SetUp() {}
+  void TearDown() {}
 };
 
-class LLVMEnvironment : public Environment {
-public:
-  LLVMEnvironment() {}
+TEST_F(LLVMEnvironmentTest, Keyword) {
+  LLVMEnvironment env;
+  UExpression e = make_unique<expression::Keyword>("test");
+  env.eval(e);
+}
 
-  void eval(UExpression&) override;
-};
-
-#endif //PUNCH_ENVIRONMENT_HPP
+//compiler hpp, die gaat alles aan elkaar knopen. reader, ast runs, macro time etc.
