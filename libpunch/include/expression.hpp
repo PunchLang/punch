@@ -31,9 +31,9 @@ namespace expression {
 
     virtual std::string DebugInfo() const = 0;
 
-    virtual llvm::Value *llvm_codegen() = 0;
+    virtual llvm::Value *llvm_codegen() const = 0;
 
-    virtual bool equal_to(Expression *e) = 0;
+    virtual bool equal_to(const Expression *e) const = 0;
 
   };
 

@@ -16,6 +16,11 @@
 
 class Reader;
 
+template <typename T>
+T const *as(const expression::Expression * e) {
+  return as_type<expression::Expression, T>(e);
+}
+
 namespace expression {
   class EndOfFile : public Expression {
   public:
@@ -24,7 +29,7 @@ namespace expression {
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression *other) override;
+    bool equal_to(const Expression *other) const override;
   };
 
   class Keyword : public Expression {
@@ -35,11 +40,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::string value;
@@ -53,11 +58,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     long value;
@@ -71,11 +76,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     double value;
@@ -89,11 +94,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     long numerator;
@@ -108,29 +113,32 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::string value;
   };
 
-  class List : public Expression {
+  class Symbolic : public Expression {
   public:
-    List(std::list<UExpression>& inner) : inner(std::move(inner)) {}
-    List(List &&other) : inner(std::move(other.inner)) {}
+    Symbolic(std::list<UExpression>& inner) : inner(std::move(inner)) {}
+    Symbolic(Symbolic &&other) : inner(std::move(other.inner)) {}
 
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
+    int n() const;
+    std::list<UExpression> const & get_inner() const;
+
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::list<UExpression> inner;
@@ -144,11 +152,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::list<UExpression> inner;
@@ -162,11 +170,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::list<UExpression> inner;
@@ -180,11 +188,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::string value;
@@ -198,11 +206,11 @@ namespace expression {
     static bool accepts(Token&);
     static UExpression create(Reader*, std::string& error);
 
-    llvm::Value *llvm_codegen() override;
+    llvm::Value *llvm_codegen() const override;
     std::string DebugInfo() const override;
 
   protected:
-    bool equal_to(Expression* other) override;
+    bool equal_to(const Expression* other) const override;
 
   private:
     std::list<UExpression> inner;

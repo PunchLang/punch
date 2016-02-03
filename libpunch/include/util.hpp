@@ -50,4 +50,14 @@ T* of_type(std::unique_ptr<S>& val) {
   return p;
 }
 
+template <typename S, typename T>
+T const *as_type(const S* other) {
+  if (const T *p = static_cast<T const*>(other)) {
+    return p;
+  }
+  else {
+    return nullptr;
+  }
+}
+
 #endif //PUNCH_UTIL_HPP

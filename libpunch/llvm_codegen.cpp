@@ -14,52 +14,52 @@
 
 using namespace expression;
 
-llvm::Value *Keyword::llvm_codegen() {
+llvm::Value *Keyword::llvm_codegen() const {
   std::cout << "KEYWORD CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Integer::llvm_codegen() {
+llvm::Value *Integer::llvm_codegen() const {
   std::cout << "KEYWORD CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Float::llvm_codegen() {
+llvm::Value *Float::llvm_codegen() const {
   std::cout << "FLOAT CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Ratio::llvm_codegen() {
+llvm::Value *Ratio::llvm_codegen() const {
   std::cout << "RATIO CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Literal::llvm_codegen() {
+llvm::Value *Literal::llvm_codegen() const {
   std::cout << "LITERAL CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *List::llvm_codegen() {
-  std::cout << "LIST CODEGEN" << std::endl;
+llvm::Value *Symbolic::llvm_codegen() const {
+  std::cout << "SYMBOLIC CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Map::llvm_codegen() {
+llvm::Value *Map::llvm_codegen() const {
   std::cout << "MAP CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Set::llvm_codegen() {
+llvm::Value *Set::llvm_codegen() const {
   std::cout << "SET CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *String::llvm_codegen() {
+llvm::Value *String::llvm_codegen() const {
   std::cout << "STRING CODEGEN" << std::endl;
   return nullptr;
 }
 
-llvm::Value *Vector::llvm_codegen() {
+llvm::Value *Vector::llvm_codegen() const {
   std::cout << "VECTOR CODEGEN" << std::endl;
   return nullptr;
 }

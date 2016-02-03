@@ -10,8 +10,22 @@
 
 #include <reader_expressions.hpp>
 #include <reader.hpp>
+#include <util.hpp>
 
 namespace expression {
+
+  template <typename T>
+  T const *as(const Expression* e) {
+    return as_type<Expression, T>(e);
+  }
+
+  int Symbolic::n() const {
+    return inner.size();
+  }
+
+  std::list<UExpression> const & Symbolic::get_inner() const {
+    return inner;
+  }
 
   /* DEBUGINFO */
 
@@ -39,7 +53,7 @@ namespace expression {
     return "LIT(" + value + ")";
   }
 
-  std::string List::DebugInfo() const {
+  std::string Symbolic::DebugInfo() const {
     auto ret  = std::string("LIST[ ");
 
     for (auto it = inner.begin(); it != inner.end(); ++it) {
@@ -89,8 +103,8 @@ namespace expression {
 
   /* EQUALITY */
 
-  bool EndOfFile::equal_to(Expression* other)  {
-    if (const EndOfFile *p = static_cast<EndOfFile const*>(other)) {
+  bool EndOfFile::equal_to(const Expression* other) const {
+    if (auto p = as<EndOfFile>(other)) {
       return true;
     }
     else {
@@ -98,8 +112,8 @@ namespace expression {
     }
   }
 
-  bool Keyword::equal_to(Expression* other) {
-    if (const Keyword *p = static_cast<Keyword const*>(other)) {
+  bool Keyword::equal_to(const Expression* other) const {
+    if (auto p = as<Keyword>(other)) {
       return value == p->value;
     }
     else {
@@ -107,8 +121,8 @@ namespace expression {
     }
   }
 
-  bool Integer::equal_to(Expression* other) {
-    if (const Integer *p = static_cast<Integer const*>(other)) {
+  bool Integer::equal_to(const Expression* other) const {
+    if (auto p = as<Integer>(other)) {
       return value == p->value;
     }
     else {
@@ -116,8 +130,8 @@ namespace expression {
     }
   }
 
-  bool Float::equal_to(Expression* other) {
-    if (const Float *p = static_cast<Float const*>(other)) {
+  bool Float::equal_to(const Expression* other) const {
+    if (auto p = as<Float>(other)) {
       return  std::fabs(value - p->value) < std::numeric_limits<double>::epsilon();
     }
     else {
@@ -125,8 +139,8 @@ namespace expression {
     }
   }
 
-  bool Ratio::equal_to(Expression* other) {
-    if (const Ratio *p = static_cast<Ratio const*>(other)) {
+  bool Ratio::equal_to(const Expression* other) const {
+    if (auto p = as<Ratio>(other)) {
       return numerator == p->numerator && denominator == p->denominator;
     }
     else {
@@ -134,8 +148,8 @@ namespace expression {
     }
   }
 
-  bool Literal::equal_to(Expression* other) {
-    if (const Literal *p = static_cast<Literal const*>(other)) {
+  bool Literal::equal_to(const Expression* other) const {
+    if (auto p = as<Literal>(other)) {
       return value == p->value;
     }
     else {
@@ -143,8 +157,8 @@ namespace expression {
     }
   }
 
-  bool List::equal_to(Expression* other) {
-    if (const List *p = static_cast<List const*>(other)) {
+  bool Symbolic::equal_to(const Expression* other) const {
+    if (auto p = as<Symbolic>(other)) {
       return inner == p->inner;
     }
     else {
@@ -152,8 +166,8 @@ namespace expression {
     }
   }
 
-  bool Map::equal_to(Expression* other) {
-    if (const Map *p = static_cast<Map const*>(other)) {
+  bool Map::equal_to(const Expression* other) const {
+    if (auto p = as<Map>(other)) {
       return inner == p->inner;
     }
     else {
@@ -161,8 +175,8 @@ namespace expression {
     }
   }
 
-  bool Set::equal_to(Expression* other) {
-    if (const Set *p = static_cast<Set const*>(other)) {
+  bool Set::equal_to(const Expression* other) const {
+    if (auto p = as<Set>(other)) {
       return inner == p->inner;
     }
     else {
@@ -170,7 +184,7 @@ namespace expression {
     }
   }
 
-  bool String::equal_to(Expression* other) {
+  bool String::equal_to(const Expression* other) const {
     if (const String *p = static_cast<String const*>(other)) {
       return value == p->value;
     }
@@ -179,7 +193,7 @@ namespace expression {
     }
   }
 
-  bool Vector::equal_to(Expression* other) {
+  bool Vector::equal_to(const Expression* other) const {
     if (const Vector *p = static_cast<Vector const*>(other)) {
       return inner == p->inner;
     }

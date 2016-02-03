@@ -159,11 +159,11 @@ TEST_F(ReaderTest, Literal) {
           });
 }
 
-TEST_F(ReaderTest, List) {
+TEST_F(ReaderTest, Symbolic) {
 
   std::list<UExpression> inner1;
   compare("()",
-          {std::make_shared<List>(inner1)
+          {std::make_shared<Symbolic>(inner1)
           });
 
   std::list<UExpression> inner2;
@@ -172,7 +172,7 @@ TEST_F(ReaderTest, List) {
   inner2.push_back(make_unique<Integer>(1));
 
   compare("(+ a 1)",
-          {std::make_shared<List>(inner2)
+          {std::make_shared<Symbolic>(inner2)
           });
 }
 

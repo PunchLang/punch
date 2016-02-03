@@ -41,8 +41,8 @@ ReaderResult Reader::next(UExpression &expr) {
   else if (Literal::accepts(cur_tok)) {
     ret(Literal::create(this, msg));
   }
-  else if (List::accepts(cur_tok)) {
-    ret(List::create(this, msg));
+  else if (Symbolic::accepts(cur_tok)) {
+    ret(Symbolic::create(this, msg));
   }
   else if (Map::accepts(cur_tok)) {
     ret(Map::create(this, msg));
@@ -164,7 +164,7 @@ bool Literal::accepts(Token &tok) {
   return tok.type == TokenType::Literal;
 }
 
-bool List::accepts(Token &tok) {
+bool Symbolic::accepts(Token &tok) {
   return tok.type == TokenType::RoundOpen;
 }
 
@@ -301,7 +301,7 @@ UExpression Literal::create(Reader *r, std::string &error) {
   return make_unique<Literal>(r->current_token().value);
 }
 
-UExpression List::create(Reader *r, std::string &error) {
+UExpression Symbolic::create(Reader *r, std::string &error) {
   r->pop_token();
 
   auto without_round_close = without(closeTypes, TokenType::RoundClose);
@@ -310,11 +310,11 @@ UExpression List::create(Reader *r, std::string &error) {
   ReaderResult result = read_until(r, TokenType::RoundClose, without_round_close, l);
 
   if (result.is_ok()) {
-    return make_unique<List>(l);
+    return make_unique<Symbolic>(l);
   }
   else {
     error = result.msg;
-    return make_unique<List>();
+    return make_unique<Symbolic>();
   }
 }
 
