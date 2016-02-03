@@ -25,7 +25,9 @@ ReaderResult consume(Reader& reader, std::list<UExpression>& result) {
 void Compiler::compile(std::string v) { }
 void Compiler::compile_file(std::string filename) {
 
-  Reader reader(make_unique<Tokenizer>(make_unique<LineScanner>(filename)));
+  LineScanner scanner(filename);
+  Tokenizer tokenizer(&scanner);
+  Reader reader(&tokenizer);
   std::list<UExpression> expressions;
   auto rr = consume(reader, expressions);
 

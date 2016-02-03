@@ -36,8 +36,9 @@ ReaderResult consume(Reader& reader, std::list<SharedExpression>& result) {
 }
 
 void assert_reader_error(std::string in) {
-
-  Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
+  StringScanner scanner(in);
+  Tokenizer tokenizer(&scanner);
+  Reader reader(&tokenizer);
   std::list<SharedExpression> expressions;
   ReaderResult rr = consume(reader, expressions);
 
@@ -45,7 +46,9 @@ void assert_reader_error(std::string in) {
 }
 
 void compare(std::string in, const std::initializer_list<SharedExpression>& req) {
-  Reader reader(make_unique<Tokenizer>(make_unique<StringScanner>(in)));
+  StringScanner scanner(in);
+  Tokenizer tokenizer(&scanner);
+  Reader reader(&tokenizer);
   std::list<SharedExpression> expressions;
   auto rr = consume(reader, expressions);
 
@@ -54,7 +57,9 @@ void compare(std::string in, const std::initializer_list<SharedExpression>& req)
 }
 
 void compare_file(std::string file, const std::initializer_list<SharedExpression>& req) {
-  Reader reader(make_unique<Tokenizer>(make_unique<LineScanner>(file)));
+  LineScanner scanner(file);
+  Tokenizer tokenizer(&scanner);
+  Reader reader(&tokenizer);
   std::list<SharedExpression> expressions;
   auto rr = consume(reader, expressions);
 

@@ -34,7 +34,8 @@ std::list<Token> consume(Tokenizer& tokenizer) {
 }
 
 void compare(std::string in, const std::initializer_list<Token>& req) {
-  Tokenizer tokenizer(make_unique<StringScanner>(in));
+  StringScanner scanner(in);
+  Tokenizer tokenizer(&scanner);
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));
@@ -42,7 +43,8 @@ void compare(std::string in, const std::initializer_list<Token>& req) {
 }
 
 void compare_file(std::string file, const std::initializer_list<Token>& req) {
-  Tokenizer tokenizer(make_unique<LineScanner>(file));
+  LineScanner scanner(file);
+  Tokenizer tokenizer(&scanner);
   auto tokens = consume(tokenizer);
 
   std::list<Token> required(std::begin(req), std::end(req));

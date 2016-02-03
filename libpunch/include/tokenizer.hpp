@@ -170,8 +170,8 @@ class Tokenizer {
 
 public:
 
-  Tokenizer(std::unique_ptr<Scanner> s) :
-    scanner{std::move(s)}
+  Tokenizer(Scanner * const s) :
+    scanner{s}
   { }
 
   ~Tokenizer() { };
@@ -191,7 +191,7 @@ private:
 
   bool ready = false;
 
-  std::unique_ptr<Scanner> scanner;
+  Scanner * const scanner;
   Token m_end = Token::EndOfFile;
   Token current = m_end;
   Token waiting = m_end;

@@ -62,7 +62,7 @@ inline ReaderResult& ReaderResult::operator=(const ReaderResult& other) {
 class Reader {
 
 public:
-  Reader(std::unique_ptr<Tokenizer> t) : tokenizer{std::move(t)}, cur_tok(Token::BeginOfFile) {
+  Reader(Tokenizer * const t) : tokenizer{t}, cur_tok(Token::BeginOfFile) {
     tokenizer->next(cur_tok);
   }
 
@@ -84,7 +84,7 @@ private:
     current = std::move(expr);
   }
 
-  std::unique_ptr<Tokenizer> tokenizer;
+  Tokenizer * const tokenizer;
   Token& cur_tok;
 
   UExpression m_end = make_unique<EndOfFile>();
