@@ -8,8 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <scanner.hpp>
+#include <lang/scanner.hpp>
 #include <fstream>
+
+using namespace punch::lang;
 
 boost::optional<char> StringScanner::current_char() {
   if (this->index < this->size) {
@@ -65,7 +67,7 @@ void StringScanner::flush_line() {
   }
 }
 
-::position StringScanner::position() {
+position StringScanner::get_position() const {
   return std::make_tuple(line, col);
 }
 
@@ -152,7 +154,7 @@ void LineScanner::flush_line() {
   this->next = std::make_tuple(std::get<0>(this->next) + 1, 1);
 }
 
-::position LineScanner::position() {
+position LineScanner::get_position() const {
   int l, c;
   std::tie(l,c) = this->current;
 

@@ -9,10 +9,13 @@
  */
 
 #include <gtest/gtest.h>
-#include <scanner.hpp>
+#include <lang/scanner.hpp>
 #include <boost/optional/optional_io.hpp>
 
+using namespace punch::lang;
+
 class ScannerTest : public ::testing::Test {
+
 public:
   ScannerTest() {}
   ~ScannerTest() {}

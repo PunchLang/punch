@@ -9,11 +9,11 @@
 FILE(GLOB libtmp_source "*.cpp")
 
 # Declare the library
-add_library(libtmp STATIC
+add_library(punchllvm STATIC
         ${libtmp_source})
 
 include_directories(include)
 
-target_include_directories(libtmp PUBLIC
+target_include_directories(punchllvm PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

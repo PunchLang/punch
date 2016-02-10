@@ -31,7 +31,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${LLVM_CXXFLAGS}") # -fsanitize=address")
 
-add_subdirectory(libtmp)
+add_subdirectory(punchllvm)
 add_subdirectory(libpunch)
 add_subdirectory(main)
 add_subdirectory(test)

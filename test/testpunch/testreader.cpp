@@ -10,12 +10,15 @@
 
 #include <list>
 #include <gtest/gtest.h>
-#include <reader.hpp>
-#include <util.hpp>
+#include <lang/reader.hpp>
+#include <lang/util.hpp>
 
-UExpression eof = make_unique<EndOfFile>();
+using namespace punch::lang;
+using namespace punch::lang::expression;
 
 class ReaderTest : public ::testing::Test {
+
+  UExpression eof = make_unique<EndOfFile>();
 public:
   ReaderTest() {}
   ~ReaderTest() {}

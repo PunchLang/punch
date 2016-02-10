@@ -10,8 +10,10 @@
 
 #include <list>
 #include <gtest/gtest.h>
-#include <tokenizer.hpp>
-#include <util.hpp>
+#include <lang/tokenizer.hpp>
+#include <lang/util.hpp>
+
+using namespace punch::lang;
 
 class TokenizerTest : public ::testing::Test {
 public:

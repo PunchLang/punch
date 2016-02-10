@@ -8,8 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <reader.hpp>
+#include <lang/reader.hpp>
 #include <boost/regex.hpp>
+
+using namespace punch::lang;
 
 ReaderResult OK(ReaderResult::ResultType::OK, "");
 ReaderResult END(ReaderResult::ResultType::END, "");

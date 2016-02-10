@@ -8,16 +8,11 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-
-#ifndef PUNCH_MATH_HPP
-#define PUNCH_MATH_HPP
-
 namespace punch {
   namespace core {
 
-    int add(int a, int b);
+    int add(int a, int b) {
+      return a + b;
+    }
   }
 }
-
-
-#endif //PUNCH_MATH_HPP

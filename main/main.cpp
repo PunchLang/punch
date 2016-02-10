@@ -10,15 +10,15 @@
  */
 
 #include <iostream>
-#include <compiler.hpp>
-#include <tokenizer.hpp>
-#include <reader.hpp>
-#include <util.hpp>
+#include <lang/compiler.hpp>
+#include <lang/tokenizer.hpp>
+#include <lang/reader.hpp>
+#include <lang/util.hpp>
 
 int main(int argc, char *argv[]) {
 
   if (argc > 1) {
-    Compiler compiler;
+    punch::lang::Compiler compiler;
     compiler.compile_file(argv[1]);
   }
 

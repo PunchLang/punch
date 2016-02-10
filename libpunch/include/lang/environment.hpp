@@ -9,13 +9,24 @@
  */
 
 
-#include "math.hpp"
+#ifndef PUNCH_LANG_ENVIRONMENT_HPP
+#define PUNCH_LANG_ENVIRONMENT_HPP
+
+#include <lang/reader.hpp>
 
 namespace punch {
-  namespace core {
+  namespace lang {
 
-    int add(int a, int b) {
-      return a + b;
-    }
+    using namespace expression;
+
+    class Environment {
+
+    public:
+      Environment() { }
+
+      virtual void eval(UExpression &) = 0;
+    };
   }
 }
+
+#endif //PUNCH_LANG_ENVIRONMENT_HPP

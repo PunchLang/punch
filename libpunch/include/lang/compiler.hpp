@@ -9,26 +9,25 @@
  */
 
 
-#ifndef PUNCH_ENVIRONMENT_HPP
-#define PUNCH_ENVIRONMENT_HPP
+#ifndef PUNCH_LANG_COMPILER_HPP
+#define PUNCH_LANG_COMPILER_HPP
 
-#include <reader.hpp>
-#include <llvm/IR/Value.h>
+#include <string>
+#include <lang/environment.hpp>
 
-using namespace expression;
+namespace punch {
+  namespace lang {
 
-class Environment {
+    class Compiler {
+    public:
+      Compiler() { };
 
-public:
-  Environment() {}
-  virtual void eval(UExpression&) = 0;
-};
+      void compile_file(std::string);
 
-class LLVMEnvironment : public Environment {
-public:
-  LLVMEnvironment() {}
+      void compile(std::string);
 
-  void eval(UExpression&) override;
-};
+    };
+  }
+}
 
-#endif //PUNCH_ENVIRONMENT_HPP
+#endif //PUNCH_LANG_COMPILER_HPP

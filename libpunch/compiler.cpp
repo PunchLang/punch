@@ -8,8 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <compiler.hpp>
-#include <reader.hpp>
+#include <lang/compiler.hpp>
+#include <lang/reader.hpp>
+
+using namespace punch::lang;
 
 ReaderResult consume(Reader& reader, std::list<UExpression>& result) {
 
@@ -34,8 +36,6 @@ void Compiler::compile_file(std::string filename) {
   if (!rr.is_error()) {
     for (UExpression &expression : expressions) {
       std::cout << expression->DebugInfo();
-
-      env.eval(expression);
     }
     std::cout << std::endl;
 

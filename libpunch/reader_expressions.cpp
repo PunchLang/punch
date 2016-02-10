@@ -8,11 +8,12 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <reader_expressions.hpp>
-#include <reader.hpp>
-#include <util.hpp>
+#include <lang/reader_expressions.hpp>
+#include <lang/reader.hpp>
+#include <lang/util.hpp>
 
-namespace expression {
+using namespace punch::lang;
+using namespace punch::lang::expression;
 
   template <typename T>
   T const *as(const Expression* e) {
@@ -201,4 +202,3 @@ namespace expression {
       return false;
     }
   }
-}

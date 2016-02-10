@@ -8,12 +8,14 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <util.hpp>
-#include <symbolic_expressions.hpp>
-#include <reader_expressions.hpp>
+#include <lang/util.hpp>
+#include <lang/symbolic_expressions.hpp>
+#include <lang/reader_expressions.hpp>
 
-expression::UExpression upgrade_expression(const expression::Expression& e) {
-  using namespace expression;
+using namespace punch::lang;
+using namespace punch::lang::expression;
+
+UExpression upgrade_expression(const Expression& e) {
   if (Def::accepts(e)) {
     return Def::create(e);
   }
@@ -27,8 +29,6 @@ expression::UExpression upgrade_expression(const expression::Expression& e) {
     return make_unique<Expression>();
   }
 }
-
-namespace expression {
 
   const String def("def");
   const String fn("fn");
@@ -89,4 +89,3 @@ namespace expression {
     }
     return false;
   }
-}

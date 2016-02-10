@@ -8,7 +8,7 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <util.hpp>
+#include <lang/util.hpp>
 #include <execinfo.h>
 #include <gtest/gtest.h>
 

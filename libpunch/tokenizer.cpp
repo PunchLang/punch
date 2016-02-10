@@ -8,8 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  */
 
-#include <tokenizer.hpp>
-#include <reader.hpp>
+#include <lang/tokenizer.hpp>
+#include <lang/reader.hpp>
+
+using namespace punch::lang;
 
 Token Token::BeginOfFile = Token(TokenType::BeginOfFile, "", std::make_tuple(-1, -1));
 Token Token::EndOfFile = Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
@@ -112,7 +114,7 @@ bool Tokenizer::next(Token& token) {
     char c = *scanner->current_char();
 
     if (c == DOUBLE_QUOTE) {
-      position pos = scanner->position();
+      position pos = scanner->get_position();
       scanner->pop();
 
       std::string result;
@@ -131,7 +133,7 @@ bool Tokenizer::next(Token& token) {
       //nothing
     }
     else if (c == BACKSLASH) {
-      position pos = scanner->position();
+      position pos = scanner->get_position();
       scanner->pop();
 
       std::string result;
@@ -142,15 +144,15 @@ bool Tokenizer::next(Token& token) {
       ret(Token::Char(result, pos));
     }
     else if (c == DISPATCH && is_next(CURLY_OPEN)) {
-      ret(Token::SetOpen(scanner->position()));
+      ret(Token::SetOpen(scanner->get_position()));
       scanner->pop();
     }
     else if (c == DISPATCH && is_next(ROUND_OPEN)) {
-      ret(Token::FunctionOpen(scanner->position()));
+      ret(Token::FunctionOpen(scanner->get_position()));
       scanner->pop();
     }
     else if (c == DISPATCH && is_next(DOUBLE_QUOTE)) {
-      position pos = scanner->position();
+      position pos = scanner->get_position();
       scanner->pop();
       scanner->pop();
 
@@ -163,7 +165,7 @@ bool Tokenizer::next(Token& token) {
       scanner->pop();
     }
     else if (c == DISPATCH) {
-      position pos = scanner->position();
+      position pos = scanner->get_position();
       scanner->pop();
 
       std::string result;
@@ -174,25 +176,25 @@ bool Tokenizer::next(Token& token) {
       ret(Token::Dispatch(result, pos));
     }
     else if (c == ROUND_OPEN) {
-      ret(Token::RoundOpen(scanner->position()));
+      ret(Token::RoundOpen(scanner->get_position()));
     }
     else if (c == ROUND_CLOSE) {
-      ret(Token::RoundClose(scanner->position()));
+      ret(Token::RoundClose(scanner->get_position()));
     }
     else if (c == CURLY_OPEN) {
-      ret(Token::CurlyOpen(scanner->position()));
+      ret(Token::CurlyOpen(scanner->get_position()));
     }
     else if (c == CURLY_CLOSE) {
-      ret(Token::CurlyClose(scanner->position()));
+      ret(Token::CurlyClose(scanner->get_position()));
     }
     else if (c == SQUARE_OPEN) {
-      ret(Token::SquareOpen(scanner->position()));
+      ret(Token::SquareOpen(scanner->get_position()));
     }
     else if (c == SQUARE_CLOSE) {
-      ret(Token::SquareClose(scanner->position()));
+      ret(Token::SquareClose(scanner->get_position()));
     }
     else {
-      position pos = scanner->position();
+      position pos = scanner->get_position();
 
       std::string result;
       if (!slurp_until({whitespace, delimiters}, result)) {
