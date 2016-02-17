@@ -21,9 +21,9 @@
 namespace punch {
   namespace lang {
 
-    class Reader;
+    namespace ple = expressions;
 
-    using namespace expression;
+    class Reader;
 
     class ReaderResult {
     public:
@@ -71,7 +71,7 @@ namespace punch {
 
       ~Reader() { }
 
-      ReaderResult next(UExpression &);
+      ReaderResult next(ple::UExpression &);
 
       bool pop_token() {
         return tokenizer->next(cur_tok);
@@ -83,15 +83,15 @@ namespace punch {
 
     private:
 
-      void ret(UExpression expr) {
+      void ret(ple::UExpression expr) {
         current = std::move(expr);
       }
 
       Tokenizer *const tokenizer;
       Token &cur_tok;
 
-      UExpression m_end = make_unique<EndOfFile>();
-      UExpression current = make_unique<EndOfFile>();
+      ple::UExpression m_end = make_unique<ple::EndOfFile>();
+      ple::UExpression current = make_unique<ple::EndOfFile>();
     };
   }
 }

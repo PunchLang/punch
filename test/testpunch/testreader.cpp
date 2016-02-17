@@ -11,10 +11,22 @@
 #include <list>
 #include <gtest/gtest.h>
 #include <lang/reader.hpp>
-#include <lang/util.hpp>
+#include <lang/visitors.hpp>
 
 using namespace punch::lang;
-using namespace punch::lang::expression;
+using namespace punch::lang::expressions;
+
+namespace punch {
+  namespace lang {
+    namespace expressions {
+      inline ::std::ostream &operator<<(::std::ostream &os, const SharedExpression &expression) {
+        LoggingVisitor logger(os, 1);
+        (*expression).accept(logger);
+        return os;
+      }
+    }
+  }
+}
 
 class ReaderTest : public ::testing::Test {
 

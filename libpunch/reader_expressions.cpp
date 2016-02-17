@@ -13,94 +13,120 @@
 #include <lang/util.hpp>
 
 using namespace punch::lang;
-using namespace punch::lang::expression;
+using namespace punch::lang::expressions;
 
-  template <typename T>
-  T const *as(const Expression* e) {
-    return as_type<Expression, T>(e);
-  }
+template <typename T>
+T const *as(const Expression* e) {
+  return as_type<Expression, T>(e);
+}
 
-  int Symbolic::n() const {
-    return inner.size();
-  }
+int Symbolic::n() const {
+  return inner.size();
+}
 
-  std::list<UExpression> const & Symbolic::get_inner() const {
-    return inner;
-  }
+std::list<UExpression> const * const Symbolic::get_inner() const {
+  return &inner;
+}
 
-  /* DEBUGINFO */
+std::list<UExpression> const * const Map::get_inner() const {
+  return &inner;
+}
 
-  std::string EndOfFile::DebugInfo() const {
-    return "EOF";
-  }
+std::list<UExpression> const * const Vector::get_inner() const {
+  return &inner;
+}
 
-  std::string Keyword::DebugInfo() const {
-    return ":" + value ;
-  }
+std::list<UExpression> const * const Set::get_inner() const {
+  return &inner;
+}
 
-  std::string Integer::DebugInfo() const {
-    return "INT(" + std::to_string(value) + ")";
-  }
+void EndOfFile::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-  std::string Float::DebugInfo() const {
-    return "FLOAT(" + std::to_string(value) + ")";
-  }
+void EndOfFile::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-  std::string Ratio::DebugInfo() const {
-    return "RATIO(" + std::to_string(numerator) + "/" + std::to_string(denominator) + ")";
-  }
+void Keyword::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-  std::string Literal::DebugInfo() const {
-    return "LIT(" + value + ")";
-  }
+void Keyword::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-  std::string Symbolic::DebugInfo() const {
-    auto ret  = std::string("LIST[ ");
+void Integer::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-    for (auto it = inner.begin(); it != inner.end(); ++it) {
-      ret += (*it)->DebugInfo() + " ";
-    }
+void Integer::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-    ret += "]";
-    return ret;
-  }
+void Float::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-  std::string Map::DebugInfo() const {
-    auto ret  = std::string("MAP{");
+void Float::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-    for (auto it = inner.begin(); it != inner.end(); ++it) {
-      ret += (*it)->DebugInfo();
-    }
+void Ratio::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-    ret += "}";
-    return ret;
-  }
+void Ratio::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-  std::string Set::DebugInfo() const {
-    auto ret  = std::string("SET{");
+void Literal::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-    for (auto it = inner.begin(); it != inner.end(); ++it) {
-      ret += (*it)->DebugInfo();
-    }
+void Literal::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-    ret += "}";
-    return ret;
-  }
+void Symbolic::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-  std::string String::DebugInfo() const {
-    return "\"" + value + "\"";
-  }
+void Symbolic::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-  std::string Vector::DebugInfo() const {
-    auto ret  = std::string("VEC[");
+void Map::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
 
-    for (auto it = inner.begin(); it != inner.end(); ++it) {
-      ret += (*it)->DebugInfo();
-    }
+void Map::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
-    ret += "]";
-    return ret;
-  }
+void Set::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
+
+void Set::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
+
+void String::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
+
+void String::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
+
+void Vector::accept(ExpressionVisitor &v) const {
+  v.visit(*this);
+}
+
+void Vector::accept(MutatingExpressionVisitor &v) {
+  v.visit(*this);
+}
 
   /* EQUALITY */
 

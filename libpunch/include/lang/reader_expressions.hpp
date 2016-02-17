@@ -13,22 +13,24 @@
 #define PUNCH_LANG_READER_EXPRESSIONS_HPP
 
 #include <lang/expression.hpp>
+#include <lang/visitors.hpp>
 
 namespace punch {
   namespace lang {
     class Reader;
 
     template<typename T>
-    T const *as(const expression::Expression *e) {
-      return as_type<expression::Expression, T>(e);
+    T const *as(const expressions::Expression *e) {
+      return as_type<expressions::Expression, T>(e);
     }
 
-    namespace expression {
+    namespace expressions {
       class EndOfFile : public Expression {
       public:
         EndOfFile() { }
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -43,13 +45,13 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const std::string value;
 
       protected:
         bool equal_to(const Expression *other) const override;
-
-      private:
-        std::string value;
       };
 
       class Integer : public Expression {
@@ -61,13 +63,14 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const long value;
 
       protected:
         bool equal_to(const Expression *other) const override;
 
-      private:
-        long value;
       };
 
       class Float : public Expression {
@@ -79,13 +82,14 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const double value;
 
       protected:
         bool equal_to(const Expression *other) const override;
 
-      private:
-        double value;
       };
 
       class Ratio : public Expression {
@@ -97,14 +101,15 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const long numerator;
+        const long denominator;
 
       protected:
         bool equal_to(const Expression *other) const override;
 
-      private:
-        long numerator;
-        long denominator;
       };
 
       class Literal : public Expression {
@@ -116,13 +121,14 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const std::string value;
 
       protected:
         bool equal_to(const Expression *other) const override;
 
-      private:
-        std::string value;
       };
 
       class Symbolic : public Expression {
@@ -134,11 +140,12 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
 
         int n() const;
 
-        std::list<UExpression> const &get_inner() const;
+        std::list<UExpression> const * const get_inner() const;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -156,7 +163,10 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        std::list<UExpression> const * const get_inner() const;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -174,7 +184,10 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        std::list<UExpression> const * const get_inner() const;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -192,13 +205,13 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        const std::string value;
 
       protected:
         bool equal_to(const Expression *other) const override;
-
-      private:
-        std::string value;
       };
 
       class Vector : public Expression {
@@ -210,7 +223,10 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor &) const override;
+        void accept(MutatingExpressionVisitor &) override;
+
+        std::list<UExpression> const * const get_inner() const;
 
       protected:
         bool equal_to(const Expression *other) const override;

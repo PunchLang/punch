@@ -16,7 +16,7 @@
 
 namespace punch {
   namespace lang {
-    namespace expression {
+    namespace expressions {
 
       class Def : public Expression {
       public:
@@ -26,7 +26,8 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor&) const override;
+        void accept(MutatingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -40,7 +41,8 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor&) const override;
+        void accept(MutatingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -58,7 +60,8 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        std::string DebugInfo() const override;
+        void accept(ExpressionVisitor&) const override;
+        void accept(MutatingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;

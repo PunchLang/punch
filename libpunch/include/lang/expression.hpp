@@ -17,7 +17,14 @@
 
 namespace punch {
   namespace lang {
-    namespace expression {
+
+    template <bool isMutating>
+    class TExpressionVisitor;
+
+    typedef TExpressionVisitor<false> ExpressionVisitor;
+    typedef TExpressionVisitor<true> MutatingExpressionVisitor;
+
+    namespace expressions {
 
       class Expression;
 
@@ -30,19 +37,12 @@ namespace punch {
         Expression() { }
         virtual ~Expression() { }
 
-        virtual std::string DebugInfo() const = 0;
+        virtual void accept(ExpressionVisitor&) const = 0;
+        virtual void accept(MutatingExpressionVisitor&) = 0;
 
         virtual bool equal_to(const Expression *e) const = 0;
 
       };
-
-      inline ::std::ostream &operator<<(::std::ostream &os, const SharedExpression &expression) {
-        return os << expression->DebugInfo();
-      }
-
-      inline ::std::ostream &operator<<(::std::ostream &os, const Expression *expression) {
-        return os << expression->DebugInfo();
-      }
 
       inline bool operator==(const UExpression &lhs, const UExpression &rhs) {
         return lhs->equal_to(&*rhs);

@@ -17,14 +17,12 @@
 namespace punch {
   namespace lang {
 
-    using namespace expression;
-
     class Environment {
 
     public:
       Environment() { }
 
-      virtual void eval(UExpression &) = 0;
+      virtual void eval(ple::UExpression &) = 0;
     };
   }
 }

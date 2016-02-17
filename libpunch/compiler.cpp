@@ -12,6 +12,7 @@
 #include <lang/reader.hpp>
 
 using namespace punch::lang;
+using namespace punch::lang::expressions;
 
 ReaderResult consume(Reader& reader, std::list<UExpression>& result) {
 
@@ -34,8 +35,9 @@ void Compiler::compile_file(std::string filename) {
   auto rr = consume(reader, expressions);
 
   if (!rr.is_error()) {
+    LoggingVisitor logger;
     for (UExpression &expression : expressions) {
-      std::cout << expression->DebugInfo();
+      expression->accept(logger);
     }
     std::cout << std::endl;
 

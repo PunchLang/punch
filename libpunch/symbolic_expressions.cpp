@@ -13,22 +13,8 @@
 #include <lang/reader_expressions.hpp>
 
 using namespace punch::lang;
-using namespace punch::lang::expression;
+using namespace punch::lang::expressions;
 
-UExpression upgrade_expression(const Expression& e) {
-  if (Def::accepts(e)) {
-    return Def::create(e);
-  }
-  else if (Fn::accepts(e)) {
-    return Fn::create(e);
-  }
-  else if (Interop::accepts(e)) {
-    return Interop::create(e);
-  }
-  else {
-    return make_unique<Expression>();
-  }
-}
 
   const String def("def");
   const String fn("fn");
@@ -38,54 +24,10 @@ UExpression upgrade_expression(const Expression& e) {
     return make_unique<Def>();
   }
 
-  bool Def::accepts(const Expression& e) {
-    if (auto s = as<Symbolic>(&e)) {
-      if (s->n() == 2) {
-        auto &inner = s->get_inner();
-        if ((*inner.front()).equal_to(&def)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   UExpression Fn::create(const Expression &expression) {
     return make_unique<Fn>();
   }
 
-  bool Fn::accepts(const Expression& e) {
-    if (auto s = as<Symbolic>(&e)) {
-      if (s->n() >= 3) {
-        auto &inner = s->get_inner();
-        if ((*inner.front()).equal_to(&fn)) {
-          auto iter = inner.begin();
-          iter++;
-          if (auto v = as<Vector>(&**iter)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
   UExpression Interop::create(const Expression &expression) {
     return make_unique<Interop>();
-  }
-
-  bool Interop::accepts(const Expression& e) {
-    if (auto s = as<Symbolic>(&e)) {
-      if (s->n() >= 2) {
-        auto &inner = s->get_inner();
-        if ((*inner.front()).equal_to(&dot)) {
-          auto iter = inner.begin();
-          iter++;
-          if (auto v = as<String>(&**iter)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
