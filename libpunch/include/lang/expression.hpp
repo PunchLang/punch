@@ -27,7 +27,6 @@ namespace punch {
     namespace expressions {
 
       enum class ExpressionType {
-        EndOfFile,
         Keyword,
         Integer,
         Float,

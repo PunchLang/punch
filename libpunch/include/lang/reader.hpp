@@ -90,8 +90,8 @@ namespace punch {
       Tokenizer *const tokenizer;
       Token &cur_tok;
 
-      ple::UExpression m_end = make_unique<ple::EndOfFile>();
-      ple::UExpression current = make_unique<ple::EndOfFile>();
+      ple::UExpression m_end;
+      ple::UExpression current;
     };
   }
 }

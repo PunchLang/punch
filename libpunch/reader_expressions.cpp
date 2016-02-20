@@ -40,14 +40,6 @@ std::list<UExpression> const * const Set::get_inner() const {
   return &inner;
 }
 
-void EndOfFile::accept(ExpressionVisitor &v) const {
-  v.visit(this);
-}
-
-void EndOfFile::accept(MutatingExpressionVisitor &v) {
-  v.visit(this);
-}
-
 void Keyword::accept(ExpressionVisitor &v) const {
   v.visit(this);
 }
@@ -129,15 +121,6 @@ void Vector::accept(MutatingExpressionVisitor &v) {
 }
 
   /* EQUALITY */
-
-  bool EndOfFile::equal_to(const Expression* other) const {
-    if (auto p = as<EndOfFile>(other)) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
 
   bool Keyword::equal_to(const Expression* other) const {
     if (auto p = as<Keyword>(other)) {

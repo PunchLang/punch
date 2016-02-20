@@ -25,20 +25,6 @@ namespace punch {
     }
 
     namespace expressions {
-      class EndOfFile : public Expression {
-      public:
-        EndOfFile() { }
-
-        void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
-
-        ExpressionType type() const override {
-          return ExpressionType::EndOfFile;
-        }
-
-      protected:
-        bool equal_to(const Expression *other) const override;
-      };
 
       class Keyword : public Expression {
       public:

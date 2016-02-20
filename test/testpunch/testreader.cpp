@@ -30,7 +30,6 @@ namespace punch {
 
 class ReaderTest : public ::testing::Test {
 
-  UExpression eof = make_unique<EndOfFile>();
 public:
   ReaderTest() {}
   ~ReaderTest() {}

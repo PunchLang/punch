@@ -22,7 +22,6 @@ namespace punch{
   namespace lang {
 
     namespace expressions {
-      class EndOfFile;
       class Keyword;
       class Integer;
       class Float;
@@ -43,8 +42,6 @@ namespace punch{
       virtual ~ExpressionVisitor() { };
 
       virtual void visit(Expression const *) = 0;
-
-      virtual void handle_eof(EndOfFile const &val) = 0;
 
       virtual void handle_keyword(Keyword const &val) = 0;
 
@@ -98,11 +95,7 @@ namespace punch{
       }
 
       void handle_expression(Expression const * expression) {
-        if (expression->type() == ExpressionType::EndOfFile) {
-          auto expr = _cast<EndOfFile>(expression);
-          derived()->handle_eof(*expr);
-        }
-        else if (expression->type() == ExpressionType::Keyword) {
+        if (expression->type() == ExpressionType::Keyword) {
           auto expr = _cast<Keyword>(expression);
           derived()->handle_keyword(*expr);
         }
@@ -154,7 +147,6 @@ namespace punch{
       LoggingVisitor() : LoggingVisitor(std::cout, 0){}
       LoggingVisitor(std::ostream &os, int start_level) : os(os), level(start_level) {}
 
-      void handle_eof(EndOfFile const &val) override;
       void handle_keyword(Keyword const &val) override;
       void handle_integer(Integer const &val) override;
       void handle_float(Float const &val) override;

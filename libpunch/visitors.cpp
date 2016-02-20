@@ -14,10 +14,6 @@
 namespace punch {
   namespace lang {
 
-  void LoggingVisitor::handle_eof(EndOfFile const &v) {
-    print("EOF");
-  }
-
   void LoggingVisitor::handle_keyword(Keyword const &v) {
     print(":" + v.value);
   }
