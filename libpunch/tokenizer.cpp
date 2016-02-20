@@ -13,9 +13,6 @@
 
 using namespace punch::lang;
 
-Token Token::BeginOfFile = Token(TokenType::BeginOfFile, "", std::make_tuple(-1, -1));
-Token Token::EndOfFile = Token(TokenType::EndOfFile, "", std::make_tuple(-1, -1));
-
 bool Token::operator==(const Token other) const {
   return type == other.type && value == other.value && pos == other.pos;
 }
@@ -106,7 +103,6 @@ bool Tokenizer::next(Token& token) {
   ready = false;
 
   if (!scanner->current_char()) {
-    token = std::move(m_end);
     return false;
   }
 
@@ -217,7 +213,6 @@ bool Tokenizer::next(Token& token) {
     return true;
   }
   else {
-    token = std::move(m_end);
     return false;
   }
 }

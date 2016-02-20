@@ -42,7 +42,6 @@ namespace punch {
     namespace token {
 
       enum class TokenType {
-        BeginOfFile, EndOfFile,
         Literal, RoundOpen, RoundClose, SquareOpen, SquareClose, CurlyOpen, CurlyClose,
         SetOpen, FunctionOpen, Dispatch, String, Regex, Char
       };
@@ -50,8 +49,6 @@ namespace punch {
       const std::set<TokenType> closeTypes = {TokenType::RoundClose, TokenType::CurlyClose, TokenType::SquareClose};
 
       const std::unordered_map<TokenType, const char *, EnumClassHash> tokenTypeTranslations({
-                                                                                                 {TokenType::BeginOfFile,  "BOF"},
-                                                                                                 {TokenType::EndOfFile,    "EOF"},
                                                                                                  {TokenType::Literal,      "LIT"},
                                                                                                  {TokenType::RoundOpen,    "("},
                                                                                                  {TokenType::RoundClose,   ")"},
@@ -68,6 +65,7 @@ namespace punch {
 
       class Token {
       public:
+        Token() {}
         Token(const Token &other) : type(other.type), value(std::string(other.value)), pos(position(other.pos)) { }
 
         Token(Token &&other) : type(std::move(other.type)), value(std::move(other.value)), pos(std::move(other.pos)) { }
@@ -101,9 +99,6 @@ namespace punch {
         TokenType type;
         std::string value;
         position pos;
-
-        static Token BeginOfFile;
-        static Token EndOfFile;
 
         static Token Literal(std::string value, position pos) {
           return Token(TokenType::Literal, value, pos);
@@ -200,9 +195,8 @@ namespace punch {
       bool ready = false;
 
       Scanner *const scanner;
-      Token m_end = Token::EndOfFile;
-      Token current = m_end;
-      Token waiting = m_end;
+      Token current;
+      Token waiting;
     };
   }
 }

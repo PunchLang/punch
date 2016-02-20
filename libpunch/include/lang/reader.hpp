@@ -65,7 +65,7 @@ namespace punch {
     class Reader {
 
     public:
-      Reader(Tokenizer *const t) : tokenizer{t}, cur_tok(Token::BeginOfFile) {
+      Reader(Tokenizer *const t) : tokenizer{t} {
         tokenizer->next(cur_tok);
       }
 
@@ -77,8 +77,13 @@ namespace punch {
         return tokenizer->next(cur_tok);
       }
 
-      Token current_token() {
-        return cur_tok;
+      Token const * const current_token() {
+        if (has_token) {
+          return &cur_tok;
+        }
+        else {
+          return nullptr;
+        }
       }
 
     private:
@@ -88,7 +93,8 @@ namespace punch {
       }
 
       Tokenizer *const tokenizer;
-      Token &cur_tok;
+      bool has_token = true;
+      Token cur_tok;
 
       ple::UExpression m_end;
       ple::UExpression current;

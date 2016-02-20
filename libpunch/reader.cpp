@@ -24,8 +24,7 @@ namespace punch {
 
     ReaderResult Reader::next(UExpression &expr) {
 
-      if (cur_tok == Token::EndOfFile) {
-        expr = std::move(m_end);
+      if (!has_token) {
         return END;
       }
 
@@ -68,7 +67,7 @@ namespace punch {
         return ERR("");
       }
 
-      tokenizer->next(cur_tok);
+      has_token = tokenizer->next(cur_tok);
 
       if (current) {
         expr = std::move(current);
@@ -90,14 +89,11 @@ namespace punch {
 
     ReaderResult read_until(Reader *r, TokenType tt, const std::set<TokenType> &not_in, std::list<UExpression> &l) {
 
-      while (r->current_token().type != tt) {
-        if (r->current_token() == Token::EndOfFile) {
-          return ERR(std::string("EOF, expected ") + tokenTypeTranslations.at(tt));
-        }
+      while (r->current_token() && r->current_token()->type != tt) {
 
-        if (not_in.find(r->current_token().type) != not_in.end()) {
+        if (not_in.find(r->current_token()->type) != not_in.end()) {
           return ERR(std::string("Expected ") + tokenTypeTranslations.at(tt) + " got " +
-                     tokenTypeTranslations.at(r->current_token().type));
+                     tokenTypeTranslations.at(r->current_token()->type));
         }
 
         UExpression expr;
@@ -109,6 +105,10 @@ namespace punch {
         else {
           return rr;
         }
+      }
+
+      if (!r->current_token()) {
+        return ERR(std::string("EOF, expected ") + tokenTypeTranslations.at(tt));
       }
 
       return OK;
@@ -192,7 +192,7 @@ namespace punch {
 /* FACTORY METHODS */
 
     UExpression Keyword::create(Reader *r, std::string &error) {
-      return make_unique<Keyword>(r->current_token().value.substr(1));
+      return make_unique<Keyword>(r->current_token()->value.substr(1));
     }
 
     UExpression Integer::create(Reader *r, std::string &error) {
@@ -200,7 +200,7 @@ namespace punch {
       /* regex breaks first number after [+-], so we check for it and remove it*/
 
       bool negate = false;
-      std::string input = r->current_token().value;
+      std::string input = r->current_token()->value;
       if (sign_start.find(input.at(0)) != sign_start.end()) {
         if (input.find("-") == 0) {
           negate = true;
@@ -267,9 +267,9 @@ namespace punch {
 
     UExpression Float::create(Reader *r, std::string &error) {
       boost::smatch match;
-      boost::regex_match(r->current_token().value, match, float_pattern);
+      boost::regex_match(r->current_token()->value, match, float_pattern);
 
-      std::string value = r->current_token().value;
+      std::string value = r->current_token()->value;
 
       if (match[4].matched) {
         // no decimals yet
@@ -283,7 +283,7 @@ namespace punch {
 
     UExpression Ratio::create(Reader *r, std::string &error) {
       boost::smatch match;
-      std::string input = r->current_token().value;
+      std::string input = r->current_token()->value;
       boost::regex_match(input, match, ratio_pattern);
 
       auto n = match[1];
@@ -303,7 +303,7 @@ namespace punch {
     }
 
     UExpression Literal::create(Reader *r, std::string &error) {
-      return make_unique<Literal>(r->current_token().value);
+      return make_unique<Literal>(r->current_token()->value);
     }
 
     UExpression Symbolic::create(Reader *r, std::string &error) {
@@ -364,7 +364,7 @@ namespace punch {
 
 
     UExpression String::create(Reader *r, std::string &error) {
-      return make_unique<String>(r->current_token().value);
+      return make_unique<String>(r->current_token()->value);
     }
 
     UExpression Vector::create(Reader *r, std::string &error) {
