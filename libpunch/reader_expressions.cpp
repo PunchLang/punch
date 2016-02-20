@@ -41,91 +41,91 @@ std::list<UExpression> const * const Set::get_inner() const {
 }
 
 void EndOfFile::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void EndOfFile::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Keyword::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Keyword::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Integer::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Integer::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Float::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Float::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Ratio::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Ratio::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Literal::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Literal::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Symbolic::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Symbolic::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Map::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Map::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Set::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Set::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void String::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void String::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Vector::accept(ExpressionVisitor &v) const {
-  v.visit(*this);
+  v.visit(this);
 }
 
 void Vector::accept(MutatingExpressionVisitor &v) {
-  v.visit(*this);
+  v.visit(this);
 }
 
   /* EQUALITY */

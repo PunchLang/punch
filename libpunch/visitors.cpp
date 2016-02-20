@@ -13,115 +13,116 @@
 
 namespace punch {
   namespace lang {
-    void LoggingVisitor::visit(endoffile_type&) {
-      print("EOF");
-    }
 
-    void LoggingVisitor::visit(keyword_type& v) {
-      print(":" + v.value);
-    }
-
-    void LoggingVisitor::visit(integer_type& v) {
-      print(std::to_string(v.value));
-    }
-
-    void LoggingVisitor::visit(float_type& v) {
-      print(std::to_string(v.value));
-    }
-
-    void LoggingVisitor::visit(ratio_type& v) {
-      print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
-    }
-
-    void LoggingVisitor::visit(literal_type& v) {
-      print(v.value);
-    }
-
-    void LoggingVisitor::visit(symbolic_type& v) {
-      level++;
-      print("(");
-
-      bool first = true;
-      auto inner = v.get_inner();
-      for (auto it = inner->begin(); it != inner->end(); ++it) {
-        if (!first) {
-          print(", ");
-        }
-
-        (*it)->accept(*this);
-        first = false;
-      }
-
-      level--;
-      print(")");
-    }
-
-    void LoggingVisitor::visit(map_type& v) {
-      level++;
-      print("{");
-
-      bool first = true;
-      auto inner = v.get_inner();
-      auto it = inner->begin();
-
-      while (it != inner->end()) {
-        if (!first) {
-          print(", ");
-        }
-
-        (*it)->accept(*this);
-        ++it;
-        (*it)->accept(*this);
-
-        first = false;
-      }
-
-      level--;
-      print("}");
-    }
-
-    void LoggingVisitor::visit(set_type& v) {
-      level++;
-      print("#{");
-
-      bool first = true;
-      auto inner = v.get_inner();
-      for (auto it = inner->begin(); it != inner->end(); ++it) {
-        if (!first) {
-          print(", ");
-        }
-
-        (*it)->accept(*this);
-        first = false;
-      }
-
-      level--;
-      print("}");
-    }
-
-    void LoggingVisitor::visit(string_type& v) {
-      print("\"" + v.value + "\"");
-    }
-
-    void LoggingVisitor::visit(vector_type& v) {
-      level++;
-      print("[");
-
-      bool first = true;
-      auto inner = v.get_inner();
-      for (auto it = inner->begin(); it != inner->end(); ++it) {
-        if (!first) {
-          print(", ");
-        }
-
-        (*it)->accept(*this);
-        first = false;
-      }
-
-      level--;
-      print("]");
-    }
+  void LoggingVisitor::handle_eof(EndOfFile const &v) {
+    print("EOF");
   }
+
+  void LoggingVisitor::handle_keyword(Keyword const &v) {
+    print(":" + v.value);
+  }
+
+  void LoggingVisitor::handle_integer(Integer const &v) {
+    print(std::to_string(v.value));
+  }
+
+  void LoggingVisitor::handle_float(Float const &v) {
+    print(std::to_string(v.value));
+  }
+
+  void LoggingVisitor::handle_ratio(Ratio const &v) {
+    print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
+  }
+
+  void LoggingVisitor::handle_literal(Literal const &v) {
+    print(v.value);
+  }
+
+  void LoggingVisitor::handle_symbolic(Symbolic const &v) {
+    level++;
+    print("(");
+
+    bool first = true;
+    auto inner = v.get_inner();
+    for (auto it = inner->begin(); it != inner->end(); ++it) {
+      if (!first) {
+        print(", ");
+      }
+
+      (*it)->accept(*this);
+      first = false;
+    }
+
+    level--;
+    print(")");
+  }
+
+  void LoggingVisitor::handle_map(Map const &v) {
+    level++;
+    print("{");
+
+    bool first = true;
+    auto inner = v.get_inner();
+    auto it = inner->begin();
+
+    while (it != inner->end()) {
+      if (!first) {
+        print(", ");
+      }
+
+      (*it)->accept(*this);
+      ++it;
+      (*it)->accept(*this);
+
+      first = false;
+    }
+
+    level--;
+    print("}");
+  }
+
+  void LoggingVisitor::handle_set(Set const &v) {
+    level++;
+    print("#{");
+
+    bool first = true;
+    auto inner = v.get_inner();
+    for (auto it = inner->begin(); it != inner->end(); ++it) {
+      if (!first) {
+        print(", ");
+      }
+
+      (*it)->accept(*this);
+      first = false;
+    }
+
+    level--;
+    print("}");
+  }
+
+  void LoggingVisitor::handle_string(expressions::String const &v) {
+    print("\"" + v.value + "\"");
+  }
+
+  void LoggingVisitor::handle_vector(Vector const &v) {
+    level++;
+    print("[");
+
+    bool first = true;
+    auto inner = v.get_inner();
+    for (auto it = inner->begin(); it != inner->end(); ++it) {
+      if (!first) {
+        print(", ");
+      }
+
+      (*it)->accept(*this);
+      first = false;
+    }
+
+    level--;
+    print("]");
+  }
+}
 }
 
 

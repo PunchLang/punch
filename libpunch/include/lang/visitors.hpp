@@ -37,83 +37,136 @@ namespace punch{
 
     using namespace expressions;
 
-    template <bool isMutating>
-    class TExpressionVisitor {
 
-    protected:
-      typedef typename std::conditional<isMutating,
-          Expression*, Expression const * const>::type expression_type;
-
-      typedef typename std::conditional<isMutating,
-          EndOfFile, EndOfFile const>::type endoffile_type;
-
-      typedef typename std::conditional<isMutating,
-          Keyword, Keyword const>::type keyword_type;
-
-      typedef typename std::conditional<isMutating,
-          Integer, Integer const>::type integer_type;
-
-      typedef typename std::conditional<isMutating,
-          Float, Float const>::type float_type;
-
-      typedef typename std::conditional<isMutating,
-          Ratio, Ratio const>::type ratio_type;
-
-      typedef typename std::conditional<isMutating,
-          Literal, Literal const>::type literal_type;
-
-      typedef typename std::conditional<isMutating,
-          Symbolic, Symbolic const>::type symbolic_type;
-
-      typedef typename std::conditional<isMutating,
-          Map, Map const>::type map_type;
-
-      typedef typename std::conditional<isMutating,
-          Set, Set const>::type set_type;
-
-      typedef typename std::conditional<isMutating,
-          String, String const>::type string_type;
-
-      typedef typename std::conditional<isMutating,
-          Vector, Vector const>::type vector_type;
-
+    class ExpressionVisitor {
     public:
-      virtual void visit(endoffile_type&) = 0;
-      virtual void visit(keyword_type&) = 0;
-      virtual void visit(integer_type&) = 0;
-      virtual void visit(float_type&) = 0;
-      virtual void visit(ratio_type&) = 0;
-      virtual void visit(literal_type&) = 0;
-      virtual void visit(symbolic_type&) = 0;
-      virtual void visit(map_type&) = 0;
-      virtual void visit(set_type&) = 0;
-      virtual void visit(string_type&) = 0;
-      virtual void visit(vector_type&) = 0;
+      virtual ~ExpressionVisitor() { };
+
+      virtual void visit(Expression const *) = 0;
+
+      virtual void handle_eof(EndOfFile const &val) = 0;
+
+      virtual void handle_keyword(Keyword const &val) = 0;
+
+      virtual void handle_integer(Integer const &val) = 0;
+
+      virtual void handle_float(Float const &val) = 0;
+
+      virtual void handle_ratio(Ratio const &val) = 0;
+
+      virtual void handle_literal(Literal const &val) = 0;
+
+      virtual void handle_symbolic(Symbolic const &val) = 0;
+
+      virtual void handle_map(Map const &val) = 0;
+
+      virtual void handle_set(Set const &val) = 0;
+
+      virtual void handle_string(String const &val) = 0;
+
+      virtual void handle_vector(Vector const &val) = 0;
+
+    private:
+      virtual ExpressionVisitor* derived()  = 0;
     };
 
-    typedef TExpressionVisitor<false> ExpressionVisitor;
-    typedef TExpressionVisitor<true> MutatingExpressionVisitor;
 
-    class LoggingVisitor : public ExpressionVisitor {
+    class MutatingExpressionVisitor {
+    public:
+      virtual ~MutatingExpressionVisitor() { };
+
+      virtual void visit(Expression const *) = 0;
+    };
+
+    template <typename Derived>
+    class RecursiveVisitor : public ExpressionVisitor {
+    public:
+      void visit(Expression const * expression) {
+        if (expression) {
+          handle_expression(expression);
+        }
+      }
+
+    private:
+      ExpressionVisitor* derived() {
+        return static_cast<Derived*>(this);
+      }
+
+      template <typename e_type>
+      e_type const * _cast(Expression const * expression) {
+        return as_type<Expression, e_type>(expression);
+      }
+
+      void handle_expression(Expression const * expression) {
+        if (expression->type() == ExpressionType::EndOfFile) {
+          auto expr = _cast<EndOfFile>(expression);
+          derived()->handle_eof(*expr);
+        }
+        else if (expression->type() == ExpressionType::Keyword) {
+          auto expr = _cast<Keyword>(expression);
+          derived()->handle_keyword(*expr);
+        }
+        else if (expression->type() == ExpressionType::Integer) {
+          auto expr = _cast<Integer>(expression);
+          derived()->handle_integer(*expr);
+        }
+        else if (expression->type() == ExpressionType::Float) {
+          auto expr = _cast<Float>(expression);
+          derived()->handle_float(*expr);
+        }
+        else if (expression->type() == ExpressionType::Ratio) {
+          auto expr = _cast<Ratio>(expression);
+          derived()->handle_ratio(*expr);
+        }
+        else if (expression->type() == ExpressionType::Literal) {
+          auto expr = _cast<Literal>(expression);
+          derived()->handle_literal(*expr);
+        }
+        else if (expression->type() == ExpressionType::Symbolic) {
+          auto expr = _cast<Symbolic>(expression);
+          derived()->handle_symbolic(*expr);
+        }
+        else if (expression->type() == ExpressionType::Map) {
+          auto expr = _cast<Map>(expression);
+          derived()->handle_map(*expr);
+        }
+        else if (expression->type() == ExpressionType::Set) {
+          auto expr = _cast<Set>(expression);
+          derived()->handle_set(*expr);
+        }
+        else if (expression->type() == ExpressionType::String) {
+          auto expr = _cast<String>(expression);
+          derived()->handle_string(*expr);
+        }
+        else if (expression->type() == ExpressionType::Vector) {
+          auto expr = _cast<Vector>(expression);
+          derived()->handle_vector(*expr);
+        }
+      }
+    };
+
+    #define Derive_RecursiveVisitor(Type) class Type: public RecursiveVisitor<Type>
+
+    Derive_RecursiveVisitor(LoggingVisitor) {
+
     public:
 
       LoggingVisitor() : LoggingVisitor(std::cout, 0){}
       LoggingVisitor(std::ostream &os, int start_level) : os(os), level(start_level) {}
 
-      void visit(endoffile_type&) override;
-      void visit(keyword_type&) override;
-      void visit(integer_type&) override;
-      void visit(float_type&) override;
-      void visit(ratio_type&) override;
-      void visit(literal_type&) override;
-      void visit(symbolic_type&) override;
-      void visit(map_type&) override;
-      void visit(set_type&) override;
-      void visit(string_type&) override;
-      void visit(vector_type&) override;
+      void handle_eof(EndOfFile const &val) override;
+      void handle_keyword(Keyword const &val) override;
+      void handle_integer(Integer const &val) override;
+      void handle_float(Float const &val) override;
+      void handle_ratio(Ratio const &val) override;
+      void handle_literal(Literal const &val) override;
+      void handle_symbolic(Symbolic const &val) override;
+      void handle_map(Map const &val) override;
+      void handle_set(Set const &val) override;
+      void handle_string(String const &val) override;
+      void handle_vector(Vector const &val) override;
 
     private:
-
       void print(std::string s) {
         os << s;
         if (level == 0) {

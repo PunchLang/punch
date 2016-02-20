@@ -13,12 +13,13 @@
 #define PUNCH_LANG_SYMBOLIC_EXPRESSIONS_HPP
 
 #include <lang/expression.hpp>
+#include <lang/reader_expressions.hpp>
 
 namespace punch {
   namespace lang {
     namespace expressions {
 
-      class Def : public Expression {
+      class Def : public Symbolic {
       public:
         Def() { }
 
@@ -26,14 +27,14 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        void accept(ExpressionVisitor&) const override;
+        //void accept(ExpressionVisitor&) const override;
         void accept(MutatingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
       };
 
-      class Fn : public Expression {
+      class Fn : public Symbolic {
       public:
         Fn() { }
 
@@ -41,7 +42,7 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        void accept(ExpressionVisitor&) const override;
+        //void accept(ExpressionVisitor&) const override;
         void accept(MutatingExpressionVisitor&) override;
 
       protected:
@@ -52,7 +53,7 @@ namespace punch {
       // (. punch.lang add 1 2), struct, static/instanced
       // (. punch.lang/add 1 2), namespaced
 
-      class Interop : public Expression {
+      class Interop : public Symbolic {
       public:
         Interop() { }
 
@@ -60,7 +61,7 @@ namespace punch {
 
         static UExpression create(const Expression &expression);
 
-        void accept(ExpressionVisitor&) const override;
+        //void accept(ExpressionVisitor&) const override;
         void accept(MutatingExpressionVisitor&) override;
 
       protected:

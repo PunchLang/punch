@@ -21,10 +21,24 @@ namespace punch {
     template <bool isMutating>
     class TExpressionVisitor;
 
-    typedef TExpressionVisitor<false> ExpressionVisitor;
-    typedef TExpressionVisitor<true> MutatingExpressionVisitor;
+    class ExpressionVisitor;
+    class MutatingExpressionVisitor;
 
     namespace expressions {
+
+      enum class ExpressionType {
+        EndOfFile,
+        Keyword,
+        Integer,
+        Float,
+        Ratio,
+        Literal,
+        Symbolic,
+        Map,
+        Set,
+        String,
+        Vector
+      };
 
       class Expression;
 
@@ -40,12 +54,14 @@ namespace punch {
         virtual void accept(ExpressionVisitor&) const = 0;
         virtual void accept(MutatingExpressionVisitor&) = 0;
 
+
+        virtual ExpressionType type() const = 0;
         virtual bool equal_to(const Expression *e) const = 0;
 
       };
 
       inline bool operator==(const UExpression &lhs, const UExpression &rhs) {
-        return lhs->equal_to(&*rhs);
+        return lhs->type() == rhs->type() && lhs->equal_to(&*rhs);
       }
 
       inline bool operator!=(const UExpression &lhs, const UExpression &rhs) {

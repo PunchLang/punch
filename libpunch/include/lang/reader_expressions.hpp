@@ -32,6 +32,10 @@ namespace punch {
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
 
+        ExpressionType type() const override {
+          return ExpressionType::EndOfFile;
+        }
+
       protected:
         bool equal_to(const Expression *other) const override;
       };
@@ -47,6 +51,10 @@ namespace punch {
 
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
+
+        ExpressionType type() const override {
+          return ExpressionType::Keyword;
+        }
 
         const std::string value;
 
@@ -65,6 +73,10 @@ namespace punch {
 
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
+
+        ExpressionType type() const override {
+          return ExpressionType::Integer;
+        }
 
         const long value;
 
@@ -85,6 +97,10 @@ namespace punch {
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
 
+        ExpressionType type() const override {
+          return ExpressionType::Float;
+        }
+
         const double value;
 
       protected:
@@ -103,6 +119,10 @@ namespace punch {
 
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
+
+        ExpressionType type() const override {
+          return ExpressionType::Ratio;
+        }
 
         const long numerator;
         const long denominator;
@@ -124,6 +144,10 @@ namespace punch {
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
 
+        ExpressionType type() const override {
+          return ExpressionType::Literal;
+        }
+
         const std::string value;
 
       protected:
@@ -133,6 +157,7 @@ namespace punch {
 
       class Symbolic : public Expression {
       public:
+        Symbolic() {}
         Symbolic(std::list<UExpression> &inner) : inner(std::move(inner)) { }
         Symbolic(Symbolic &&other) : inner(std::move(other.inner)) { }
 
@@ -140,10 +165,14 @@ namespace punch {
 
         static UExpression create(Reader *, std::string &error);
 
-        void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        virtual void accept(ExpressionVisitor &) const override;
+        virtual void accept(MutatingExpressionVisitor &) override;
 
         int n() const;
+
+        ExpressionType type() const override {
+          return ExpressionType::Symbolic;
+        }
 
         std::list<UExpression> const * const get_inner() const;
 
@@ -166,6 +195,10 @@ namespace punch {
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
 
+        ExpressionType type() const override {
+          return ExpressionType::Map;
+        }
+
         std::list<UExpression> const * const get_inner() const;
 
       protected:
@@ -186,6 +219,10 @@ namespace punch {
 
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
+
+        ExpressionType type() const override {
+          return ExpressionType::Set;
+        }
 
         std::list<UExpression> const * const get_inner() const;
 
@@ -208,6 +245,10 @@ namespace punch {
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
 
+        ExpressionType type() const override {
+          return ExpressionType::String;
+        }
+
         const std::string value;
 
       protected:
@@ -225,6 +266,10 @@ namespace punch {
 
         void accept(ExpressionVisitor &) const override;
         void accept(MutatingExpressionVisitor &) override;
+
+        ExpressionType type() const override {
+          return ExpressionType::Vector;
+        }
 
         std::list<UExpression> const * const get_inner() const;
 
