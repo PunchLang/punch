@@ -167,14 +167,14 @@ TEST_F(ReaderTest, Ratio) {
           });
 }
 
-TEST_F(ReaderTest, Literal) {
+TEST_F(ReaderTest, Symbol) {
 
   compare("a",
-          {std::make_shared<Literal>("a")
+          {std::make_shared<Symbol>("a")
           });
 
   compare("+",
-          {std::make_shared<Literal>("+")
+          {std::make_shared<Symbol>("+")
           });
 }
 
@@ -186,8 +186,8 @@ TEST_F(ReaderTest, Symbolic) {
           });
 
   std::list<UExpression> inner2;
-  inner2.push_back(make_unique<Literal>("+"));
-  inner2.push_back(make_unique<Literal>("a"));
+  inner2.push_back(make_unique<Symbol>("+"));
+  inner2.push_back(make_unique<Symbol>("a"));
   inner2.push_back(make_unique<Integer>(1));
 
   compare("(+ a 1)",
@@ -215,7 +215,7 @@ TEST_F(ReaderTest, Map) {
 
   std::list<UExpression> inner2;
   inner2.push_back(make_unique<Integer>(1));
-  inner2.push_back(make_unique<Literal>("a"));
+  inner2.push_back(make_unique<Symbol>("a"));
 
   compare("{1 a}",
           {std::make_shared<Map>(inner2)
@@ -242,7 +242,7 @@ TEST_F(ReaderTest, Set) {
 
   std::list<UExpression> inner2;
   inner2.push_back(make_unique<Integer>(1));
-  inner2.push_back(make_unique<Literal>("a"));
+  inner2.push_back(make_unique<Symbol>("a"));
 
   compare("#{1 a}",
           {std::make_shared<Set>(inner2)
@@ -275,7 +275,7 @@ TEST_F(ReaderTest, Vector) {
 
   std::list<UExpression> inner2;
   inner2.push_back(make_unique<Integer>(1));
-  inner2.push_back(make_unique<Literal>("a"));
+  inner2.push_back(make_unique<Symbol>("a"));
 
   compare("[1 a]",
           {std::make_shared<Vector>(inner2)

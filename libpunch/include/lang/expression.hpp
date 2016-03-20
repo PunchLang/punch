@@ -31,7 +31,7 @@ namespace punch {
         Integer,
         Float,
         Ratio,
-        Literal,
+        Symbol,
         Symbolic,
         Map,
         Set,

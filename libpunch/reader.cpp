@@ -42,8 +42,8 @@ namespace punch {
       else if (Ratio::accepts(cur_tok)) {
         ret(Ratio::create(this, msg));
       }
-      else if (Literal::accepts(cur_tok)) {
-        ret(Literal::create(this, msg));
+      else if (Symbol::accepts(cur_tok)) {
+        ret(Symbol::create(this, msg));
       }
       else if (Symbolic::accepts(cur_tok)) {
         ret(Symbolic::create(this, msg));
@@ -165,7 +165,7 @@ namespace punch {
       return false;
     }
 
-    bool Literal::accepts(Token &tok) {
+    bool Symbol::accepts(Token &tok) {
       return tok.type == TokenType::Literal;
     }
 
@@ -302,8 +302,8 @@ namespace punch {
       return make_unique<Ratio>(numerator, denominator);
     }
 
-    UExpression Literal::create(Reader *r, std::string &error) {
-      return make_unique<Literal>(r->current_token()->value);
+    UExpression Symbol::create(Reader *r, std::string &error) {
+      return make_unique<Symbol>(r->current_token()->value);
     }
 
     UExpression Symbolic::create(Reader *r, std::string &error) {

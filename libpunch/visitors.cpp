@@ -14,111 +14,70 @@
 namespace punch {
   namespace lang {
 
-  void LoggingVisitor::handle_keyword(Keyword const &v) {
-    print(":" + v.value);
-  }
-
-  void LoggingVisitor::handle_integer(Integer const &v) {
-    print(std::to_string(v.value));
-  }
-
-  void LoggingVisitor::handle_float(Float const &v) {
-    print(std::to_string(v.value));
-  }
-
-  void LoggingVisitor::handle_ratio(Ratio const &v) {
-    print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
-  }
-
-  void LoggingVisitor::handle_literal(Literal const &v) {
-    print(v.value);
-  }
-
-  void LoggingVisitor::handle_symbolic(Symbolic const &v) {
-    level++;
-    print("(");
-
-    bool first = true;
-    auto inner = v.get_inner();
-    for (auto it = inner->begin(); it != inner->end(); ++it) {
-      if (!first) {
-        print(", ");
-      }
-
-      (*it)->accept(*this);
-      first = false;
+    void LoggingVisitor::before(Keyword const &v) {
+      print(":" + v.value);
     }
 
-    level--;
-    print(")");
-  }
-
-  void LoggingVisitor::handle_map(Map const &v) {
-    level++;
-    print("{");
-
-    bool first = true;
-    auto inner = v.get_inner();
-    auto it = inner->begin();
-
-    while (it != inner->end()) {
-      if (!first) {
-        print(", ");
-      }
-
-      (*it)->accept(*this);
-      ++it;
-      (*it)->accept(*this);
-
-      first = false;
+    void LoggingVisitor::before(Integer const &v) {
+      print(std::to_string(v.value));
     }
 
-    level--;
-    print("}");
-  }
-
-  void LoggingVisitor::handle_set(Set const &v) {
-    level++;
-    print("#{");
-
-    bool first = true;
-    auto inner = v.get_inner();
-    for (auto it = inner->begin(); it != inner->end(); ++it) {
-      if (!first) {
-        print(", ");
-      }
-
-      (*it)->accept(*this);
-      first = false;
+    void LoggingVisitor::before(Float const &v) {
+      print(std::to_string(v.value));
     }
 
-    level--;
-    print("}");
-  }
-
-  void LoggingVisitor::handle_string(expressions::String const &v) {
-    print("\"" + v.value + "\"");
-  }
-
-  void LoggingVisitor::handle_vector(Vector const &v) {
-    level++;
-    print("[");
-
-    bool first = true;
-    auto inner = v.get_inner();
-    for (auto it = inner->begin(); it != inner->end(); ++it) {
-      if (!first) {
-        print(", ");
-      }
-
-      (*it)->accept(*this);
-      first = false;
+    void LoggingVisitor::before(Ratio const &v) {
+      print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
     }
 
-    level--;
-    print("]");
+    void LoggingVisitor::before(Symbol const &v) {
+      print(v.value);
+    }
+
+    void LoggingVisitor::before(Symbolic const &v) {
+      print("(");
+      no_space = true;
+    }
+
+    void LoggingVisitor::after(Symbolic const &v) {
+      no_space = true;
+      print(")");
+    }
+
+    void LoggingVisitor::before(Map const &v) {
+      print("{");
+      no_space = true;
+    }
+
+    void LoggingVisitor::after(Map const &v) {
+      no_space = true;
+      print("}");
+    }
+
+    void LoggingVisitor::before(Set const &v) {
+      print("#{");
+      no_space = true;
+    }
+
+    void LoggingVisitor::after(Set const &val) {
+      no_space = true;
+      print("}");
+    }
+
+    void LoggingVisitor::before(expressions::String const &v) {
+      print("\"" + v.value + "\"");
+    }
+
+    void LoggingVisitor::before(Vector const &v) {
+      print("[");
+      no_space = true;
+    }
+
+    void LoggingVisitor::after(Vector const &v) {
+      no_space = true;
+      print("]");
+    }
   }
-}
 }
 
 

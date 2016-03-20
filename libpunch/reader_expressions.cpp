@@ -72,11 +72,11 @@ void Ratio::accept(MutatingExpressionVisitor &v) {
   v.visit(this);
 }
 
-void Literal::accept(ExpressionVisitor &v) const {
+void Symbol::accept(ExpressionVisitor &v) const {
   v.visit(this);
 }
 
-void Literal::accept(MutatingExpressionVisitor &v) {
+void Symbol::accept(MutatingExpressionVisitor &v) {
   v.visit(this);
 }
 
@@ -158,8 +158,8 @@ void Vector::accept(MutatingExpressionVisitor &v) {
     }
   }
 
-  bool Literal::equal_to(const Expression* other) const {
-    if (auto p = as<Literal>(other)) {
+  bool Symbol::equal_to(const Expression* other) const {
+    if (auto p = as<Symbol>(other)) {
       return value == p->value;
     }
     else {

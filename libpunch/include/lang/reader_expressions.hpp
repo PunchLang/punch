@@ -118,10 +118,10 @@ namespace punch {
 
       };
 
-      class Literal : public Expression {
+      class Symbol : public Expression {
       public:
-        Literal(std::string value) : value(value) { }
-        Literal(Literal &&other) : value(std::move(other.value)) { }
+        Symbol(std::string value) : value(value) { }
+        Symbol(Symbol &&other) : value(std::move(other.value)) { }
 
         static bool accepts(Token &);
 
@@ -131,7 +131,7 @@ namespace punch {
         void accept(MutatingExpressionVisitor &) override;
 
         ExpressionType type() const override {
-          return ExpressionType::Literal;
+          return ExpressionType::Symbol;
         }
 
         const std::string value;
