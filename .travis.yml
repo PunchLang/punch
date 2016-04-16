@@ -6,7 +6,7 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['kalakris-cmake', 'boost-latest', 'llvm-toolchain-precise', 'ubuntu-toolchain-r-test']
+          sources: ['kalakris-cmake', 'boost-latest', 'llvm-toolchain-precise-3.8', 'ubuntu-toolchain-r-test']
           packages: ['clang-3.8', 'llvm-3.8-dev', 'cmake']
       env: BOOST_VERSION=1.59.0 COMPILER=clang-3.8 CXXCOMPILER=clang++-3.8
 
