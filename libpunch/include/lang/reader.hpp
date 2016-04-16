@@ -71,7 +71,7 @@ namespace punch {
 
       ~Reader() { }
 
-      ReaderResult next(ple::UExpression &);
+      ReaderResult next(ple::SharedExpression &);
 
       bool pop_token() {
         return tokenizer->next(cur_tok);
@@ -88,7 +88,7 @@ namespace punch {
 
     private:
 
-      void ret(ple::UExpression expr) {
+      void ret(ple::SharedExpression expr) {
         current = std::move(expr);
       }
 
@@ -96,8 +96,8 @@ namespace punch {
       bool has_token = true;
       Token cur_tok;
 
-      ple::UExpression m_end;
-      ple::UExpression current;
+      ple::SharedExpression m_end;
+      ple::SharedExpression current;
     };
   }
 }

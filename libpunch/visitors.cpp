@@ -18,17 +18,21 @@ namespace punch {
       print(":" + v.value);
     }
 
-    void LoggingVisitor::before(Integer const &v) {
-      print(std::to_string(v.value));
+    void LoggingVisitor::before(Number const &val) {
+      print(val.value);
     }
 
-    void LoggingVisitor::before(Float const &v) {
-      print(std::to_string(v.value));
-    }
-
-    void LoggingVisitor::before(Ratio const &v) {
-      print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
-    }
+//    void LoggingVisitor::before(Integer const &v) {
+//      print(std::to_string(v.value));
+//    }
+//
+//    void LoggingVisitor::before(Float const &v) {
+//      print(std::to_string(v.value));
+//    }
+//
+//    void LoggingVisitor::before(Ratio const &v) {
+//      print(std::to_string(v.numerator) + "/" + std::to_string(v.denominator));
+//    }
 
     void LoggingVisitor::before(Symbol const &v) {
       print(v.value);
@@ -77,6 +81,10 @@ namespace punch {
       no_space = true;
       print("]");
     }
+
+    void NumberParser::handle(Symbol const &val, SharedExpression& original) {
+      original = std::shared_ptr<Expression> (new Symbol("hihi"));
+    };
   }
 }
 

@@ -22,15 +22,16 @@ namespace punch {
     class TExpressionVisitor;
 
     class ExpressionVisitor;
-    class MutatingExpressionVisitor;
+    class UpgradingExpressionVisitor;
 
     namespace expressions {
 
       enum class ExpressionType {
         Keyword,
-        Integer,
-        Float,
-        Ratio,
+        Number,
+//        Integer,
+//        Float,
+//        Ratio,
         Symbol,
         Symbolic,
         Map,
@@ -44,14 +45,14 @@ namespace punch {
       typedef std::unique_ptr<Expression> UExpression;
       typedef std::shared_ptr<Expression> SharedExpression;
 
-      class Expression {
+      class Expression : public std::enable_shared_from_this<Expression>{
       public:
 
         Expression() { }
         virtual ~Expression() { }
 
         virtual void accept(ExpressionVisitor&) const = 0;
-        virtual void accept(MutatingExpressionVisitor&) = 0;
+        virtual void accept(UpgradingExpressionVisitor&) = 0;
 
 
         virtual ExpressionType type() const = 0;

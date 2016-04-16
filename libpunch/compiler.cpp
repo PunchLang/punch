@@ -14,9 +14,9 @@
 using namespace punch::lang;
 using namespace punch::lang::expressions;
 
-ReaderResult consume(Reader& reader, std::list<UExpression>& result) {
+ReaderResult consume(Reader& reader, std::list<SharedExpression>& result) {
 
-  UExpression expr;
+  SharedExpression expr;
   ReaderResult rr;
   while ((rr= reader.next(expr)).is_ok()) {
     result.push_back(std::move(expr));
@@ -31,12 +31,23 @@ void Compiler::compile_file(std::string filename) {
   LineScanner scanner(filename);
   Tokenizer tokenizer(&scanner);
   Reader reader(&tokenizer);
-  std::list<UExpression> expressions;
+  std::list<SharedExpression> expressions;
   auto rr = consume(reader, expressions);
 
   if (!rr.is_error()) {
+
+    std::cerr << "BEFORE" << std::endl;
     LoggingVisitor logger;
-    for (UExpression &expression : expressions) {
+    for (SharedExpression &expression : expressions) {
+      expression->accept(logger);
+    }
+    std::cout << std::endl;
+
+    NumberParser numberParser;
+    numberParser.upgrade(expressions);
+
+    std::cerr << "AFTER" << std::endl;
+    for (SharedExpression &expression : expressions) {
       expression->accept(logger);
     }
     std::cout << std::endl;

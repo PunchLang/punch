@@ -36,7 +36,7 @@ namespace punch {
         static UExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::Keyword;
@@ -48,75 +48,96 @@ namespace punch {
         bool equal_to(const Expression *other) const override;
       };
 
-      class Integer : public Expression {
+      class Number : public Expression {
       public:
-        Integer(long value) : value(value) { }
-        Integer(Integer &&other) : value(std::move(other.value)) { }
+        Number(std::string value) : value (value) {}
+        Number(Number &&other) : value(std::move(other.value)) {}
 
-        static bool accepts(Token &);
-
-        static UExpression create(Reader *, std::string &error);
+        static bool accepts(Token &tok);
+        static UExpression create(Reader *r, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
-          return ExpressionType::Integer;
-        }
+          return ExpressionType::Number;
+        };
 
-        const long value;
+        const std::string value;
 
       protected:
         bool equal_to(const Expression *other) const override;
-
       };
 
-      class Float : public Expression {
-      public:
-        Float(double value) : value(value) { }
-        Float(Float &&other) : value(std::move(other.value)) { }
-
-        static bool accepts(Token &);
-
-        static UExpression create(Reader *, std::string &error);
-
-        void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
-
-        ExpressionType type() const override {
-          return ExpressionType::Float;
-        }
-
-        const double value;
-
-      protected:
-        bool equal_to(const Expression *other) const override;
-
-      };
-
-      class Ratio : public Expression {
-      public:
-        Ratio(long n, long d) : numerator(n), denominator(d) { }
-        Ratio(Ratio &&other) : numerator(std::move(other.numerator)), denominator(std::move(other.denominator)) { }
-
-        static bool accepts(Token &);
-
-        static UExpression create(Reader *, std::string &error);
-
-        void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
-
-        ExpressionType type() const override {
-          return ExpressionType::Ratio;
-        }
-
-        const long numerator;
-        const long denominator;
-
-      protected:
-        bool equal_to(const Expression *other) const override;
-
-      };
+//      class Integer : public Expression {
+//      public:
+//        Integer(long value) : value(value) { }
+//        Integer(Integer &&other) : value(std::move(other.value)) { }
+//
+//        static bool accepts(Token &);
+//
+//        static UExpression create(Reader *, std::string &error);
+//
+//        void accept(ExpressionVisitor &) const override;
+//        void accept(UpgradingExpressionVisitor &) override;
+//
+//        ExpressionType type() const override {
+//          return ExpressionType::Integer;
+//        }
+//
+//        const long value;
+//
+//      protected:
+//        bool equal_to(const Expression *other) const override;
+//
+//      };
+//
+//      class Float : public Expression {
+//      public:
+//        Float(double value) : value(value) { }
+//        Float(Float &&other) : value(std::move(other.value)) { }
+//
+//        static bool accepts(Token &);
+//
+//        static UExpression create(Reader *, std::string &error);
+//
+//        void accept(ExpressionVisitor &) const override;
+//        void accept(UpgradingExpressionVisitor &) override;
+//
+//        ExpressionType type() const override {
+//          return ExpressionType::Float;
+//        }
+//
+//        const double value;
+//
+//      protected:
+//        bool equal_to(const Expression *other) const override;
+//
+//      };
+//
+//      class Ratio : public Expression {
+//      public:
+//        Ratio(long n, long d) : numerator(n), denominator(d) { }
+//        Ratio(Ratio &&other) : numerator(std::move(other.numerator)), denominator(std::move(other.denominator)) { }
+//
+//        static bool accepts(Token &);
+//
+//        static UExpression create(Reader *, std::string &error);
+//
+//        void accept(ExpressionVisitor &) const override;
+//        void accept(UpgradingExpressionVisitor &) override;
+//
+//        ExpressionType type() const override {
+//          return ExpressionType::Ratio;
+//        }
+//
+//        const long numerator;
+//        const long denominator;
+//
+//      protected:
+//        bool equal_to(const Expression *other) const override;
+//
+//      };
 
       class Symbol : public Expression {
       public:
@@ -125,10 +146,10 @@ namespace punch {
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::Symbol;
@@ -144,15 +165,15 @@ namespace punch {
       class Symbolic : public Expression {
       public:
         Symbolic() {}
-        Symbolic(std::list<UExpression> &inner) : inner(std::move(inner)) { }
+        Symbolic(std::list<SharedExpression> &inner) : inner(std::move(inner)) { }
         Symbolic(Symbolic &&other) : inner(std::move(other.inner)) { }
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         virtual void accept(ExpressionVisitor &) const override;
-        virtual void accept(MutatingExpressionVisitor &) override;
+        virtual void accept(UpgradingExpressionVisitor &) override;
 
         int n() const;
 
@@ -160,63 +181,66 @@ namespace punch {
           return ExpressionType::Symbolic;
         }
 
-        std::list<UExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> * get_inner();
 
       protected:
         bool equal_to(const Expression *other) const override;
 
       private:
-        std::list<UExpression> inner;
+        std::list<SharedExpression> inner;
       };
 
       class Map : public Expression {
       public:
-        Map(std::list<UExpression> &inner) : inner(std::move(inner)) { }
+        Map(std::list<SharedExpression> &inner) : inner(std::move(inner)) { }
         Map(Map &&other) : inner(std::move(other.inner)) { }
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::Map;
         }
 
-        std::list<UExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> * get_inner();
 
       protected:
         bool equal_to(const Expression *other) const override;
 
       private:
-        std::list<UExpression> inner;
+        std::list<SharedExpression> inner;
       };
 
       class Set : public Expression {
       public:
-        Set(std::list<UExpression> &inner) : inner(std::move(inner)) { }
+        Set(std::list<SharedExpression> &inner) : inner(std::move(inner)) { }
         Set(Set &&other) : inner(std::move(other.inner)) { }
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::Set;
         }
 
-        std::list<UExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> * get_inner();
 
       protected:
         bool equal_to(const Expression *other) const override;
 
       private:
-        std::list<UExpression> inner;
+        std::list<SharedExpression> inner;
       };
 
       class String : public Expression {
@@ -226,10 +250,10 @@ namespace punch {
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::String;
@@ -243,27 +267,28 @@ namespace punch {
 
       class Vector : public Expression {
       public:
-        Vector(std::list<UExpression> &inner) : inner(std::move(inner)) { }
+        Vector(std::list<SharedExpression> &inner) : inner(std::move(inner)) { }
         Vector(Vector &&other) : inner(std::move(other.inner)) { }
 
         static bool accepts(Token &);
 
-        static UExpression create(Reader *, std::string &error);
+        static SharedExpression create(Reader *, std::string &error);
 
         void accept(ExpressionVisitor &) const override;
-        void accept(MutatingExpressionVisitor &) override;
+        void accept(UpgradingExpressionVisitor &) override;
 
         ExpressionType type() const override {
           return ExpressionType::Vector;
         }
 
-        std::list<UExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> * get_inner();
 
       protected:
         bool equal_to(const Expression *other) const override;
 
       private:
-        std::list<UExpression> inner;
+        std::list<SharedExpression> inner;
       };
     }
   }

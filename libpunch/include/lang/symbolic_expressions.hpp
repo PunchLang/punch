@@ -28,7 +28,7 @@ namespace punch {
         static UExpression create(const Expression &expression);
 
         //void accept(ExpressionVisitor&) const override;
-        void accept(MutatingExpressionVisitor&) override;
+        void accept(UpgradingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -43,7 +43,7 @@ namespace punch {
         static UExpression create(const Expression &expression);
 
         //void accept(ExpressionVisitor&) const override;
-        void accept(MutatingExpressionVisitor&) override;
+        void accept(UpgradingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;
@@ -62,7 +62,7 @@ namespace punch {
         static UExpression create(const Expression &expression);
 
         //void accept(ExpressionVisitor&) const override;
-        void accept(MutatingExpressionVisitor&) override;
+        void accept(UpgradingExpressionVisitor&) override;
 
       protected:
         bool equal_to(const Expression *other) const override;

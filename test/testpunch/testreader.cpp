@@ -40,7 +40,7 @@ public:
 
 ReaderResult consume(Reader& reader, std::list<SharedExpression>& result) {
 
-  UExpression expr;
+  SharedExpression expr;
   ReaderResult rr;
   while ((rr= reader.next(expr)).is_ok()) {
     result.push_back(std::move(expr));
@@ -87,85 +87,119 @@ TEST_F(ReaderTest, Keyword) {
           });
 }
 
-TEST_F(ReaderTest, Integers) {
+TEST_F(ReaderTest, Number) {
   compare("0",
-          {std::make_shared<Integer>(0)
+          {std::make_shared<Number>("0")
           });
-
-  compare("2",
-          {std::make_shared<Integer>(2)
-          });
-
-  compare_file("resources/numbers.p",
-               {std::make_shared<Integer>(2)
-               });
 
   compare(std::string("+2"),
-          {std::make_shared<Integer>(2)
+          {std::make_shared<Number>("+2")
           });
 
   compare("-2",
-          {std::make_shared<Integer>(-2)
-          });
-
-  compare("12345",
-          {std::make_shared<Integer>(12345)
-          });
-
-  compare("011",
-          {std::make_shared<Integer>(9)
-          });
-
-  compare("0x11",
-          {std::make_shared<Integer>(17)
+          {std::make_shared<Number>("-2")
           });
 
   compare("0xF",
-          {std::make_shared<Integer>(15)
+          {std::make_shared<Number>("0xF")
+          });
+
+  compare("011",
+          {std::make_shared<Number>("011")
           });
 
   compare("2r100",
-          {std::make_shared<Integer>(4)
+          {std::make_shared<Number>("2r100")
           });
 
-  compare("3r100",
-          {std::make_shared<Integer>(9)
-          });
-}
-
-TEST_F(ReaderTest, Float) {
-
-  compare("0.",
-          {std::make_shared<Float>(0)
+  compare("+1/2",
+          {std::make_shared<Number>("+1/2")
           });
 
-  compare("0.11",
-          {std::make_shared<Float>(0.11)
-          });
-
-  compare("-1.11",
-          {std::make_shared<Float>(-1.11)
-          });
-
-  compare("+1.11233",
-          {std::make_shared<Float>(1.11233)
-          });
-
-  compare("12.23M",
-          {std::make_shared<Float>(12.23)
+  compare("1.000",
+          {std::make_shared<Number>("1.000")
           });
 }
 
-TEST_F(ReaderTest, Ratio) {
+//TEST_F(ReaderTest, Integers) {
+//  compare("0",
+//          {std::make_shared<Integer>(0)
+//          });
+//
+//  compare("2",
+//          {std::make_shared<Integer>(2)
+//          });
+//
+//  compare_file("resources/numbers.p",
+//               {std::make_shared<Integer>(2)
+//               });
+//
+//  compare(std::string("+2"),
+//          {std::make_shared<Integer>(2)
+//          });
+//
+//  compare("-2",
+//          {std::make_shared<Integer>(-2)
+//          });
+//
+//  compare("12345",
+//          {std::make_shared<Integer>(12345)
+//          });
+//
+//  compare("011",
+//          {std::make_shared<Integer>(9)
+//          });
+//
+//  compare("0x11",
+//          {std::make_shared<Integer>(17)
+//          });
+//
+//  compare("0xF",
+//          {std::make_shared<Integer>(15)
+//          });
+//
+//  compare("2r100",
+//          {std::make_shared<Integer>(4)
+//          });
+//
+//  compare("3r100",
+//          {std::make_shared<Integer>(9)
+//          });
+//}
 
-  compare("0/1",
-          {std::make_shared<Ratio>(0,1)
-          });
+//TEST_F(ReaderTest, Float) {
+//
+//  compare("0.",
+//          {std::make_shared<Float>(0)
+//          });
+//
+//  compare("0.11",
+//          {std::make_shared<Float>(0.11)
+//          });
+//
+//  compare("-1.11",
+//          {std::make_shared<Float>(-1.11)
+//          });
+//
+//  compare("+1.11233",
+//          {std::make_shared<Float>(1.11233)
+//          });
+//
+//  compare("12.23M",
+//          {std::make_shared<Float>(12.23)
+//          });
+//}
 
-  compare("12/525",
-          {std::make_shared<Ratio>(12,525)
-          });
-}
+//TEST_F(ReaderTest, Ratio) {
+//
+//  compare("0/1",
+//          {std::make_shared<Ratio>(0,1)
+//          });
+//
+//  compare("12/525",
+//          {std::make_shared<Ratio>(12,525)
+//          });
+//}
 
 TEST_F(ReaderTest, Symbol) {
 
@@ -180,15 +214,15 @@ TEST_F(ReaderTest, Symbol) {
 
 TEST_F(ReaderTest, Symbolic) {
 
-  std::list<UExpression> inner1;
+  std::list<SharedExpression> inner1;
   compare("()",
           {std::make_shared<Symbolic>(inner1)
           });
 
-  std::list<UExpression> inner2;
+  std::list<SharedExpression> inner2;
   inner2.push_back(make_unique<Symbol>("+"));
   inner2.push_back(make_unique<Symbol>("a"));
-  inner2.push_back(make_unique<Integer>(1));
+  inner2.push_back(make_unique<Number>("1"));
 
   compare("(+ a 1)",
           {std::make_shared<Symbolic>(inner2)
@@ -208,13 +242,13 @@ TEST_F(ReaderTest, WrongListClose) {
 
 TEST_F(ReaderTest, Map) {
 
-  std::list<UExpression> inner1;
+  std::list<SharedExpression> inner1;
   compare("{}",
           {std::make_shared<Map>(inner1)
           });
 
-  std::list<UExpression> inner2;
-  inner2.push_back(make_unique<Integer>(1));
+  std::list<SharedExpression> inner2;
+  inner2.push_back(make_unique<Number>("1"));
   inner2.push_back(make_unique<Symbol>("a"));
 
   compare("{1 a}",
@@ -235,13 +269,13 @@ TEST_F(ReaderTest, UnevenMap) {
 
 TEST_F(ReaderTest, Set) {
 
-  std::list<UExpression> inner1;
+  std::list<SharedExpression> inner1;
   compare("#{}",
           {std::make_shared<Set>(inner1)
           });
 
-  std::list<UExpression> inner2;
-  inner2.push_back(make_unique<Integer>(1));
+  std::list<SharedExpression> inner2;
+  inner2.push_back(make_unique<Number>("1"));
   inner2.push_back(make_unique<Symbol>("a"));
 
   compare("#{1 a}",
@@ -268,13 +302,13 @@ TEST_F(ReaderTest, WrongStringClose) {
 
 TEST_F(ReaderTest, Vector) {
 
-  std::list<UExpression> inner1;
+  std::list<SharedExpression> inner1;
   compare("[]",
           {std::make_shared<Vector>(inner1)
           });
 
-  std::list<UExpression> inner2;
-  inner2.push_back(make_unique<Integer>(1));
+  std::list<SharedExpression> inner2;
+  inner2.push_back(make_unique<Number>("1"));
   inner2.push_back(make_unique<Symbol>("a"));
 
   compare("[1 a]",

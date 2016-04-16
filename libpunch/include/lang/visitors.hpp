@@ -23,9 +23,10 @@ namespace punch{
 
     namespace expressions {
       class Keyword;
-      class Integer;
-      class Float;
-      class Ratio;
+      class Number;
+//      class Integer;
+//      class Float;
+//      class Ratio;
       class Symbol;
       class Symbolic;
       class Map;
@@ -46,14 +47,17 @@ namespace punch{
       virtual void before(Keyword const &val) {};
       virtual void after(Keyword const &val) {};
 
-      virtual void before(Integer const &val) {};
-      virtual void after(Integer const &val) {};
+      virtual void before(Number const &val) {};
+      virtual void after(Number const &val) {};
 
-      virtual void before(Float const &val) {};
-      virtual void after(Float const &val) {};
-
-      virtual void before(Ratio const &val) {};
-      virtual void after(Ratio const &val) {};
+//      virtual void before(Integer const &val) {};
+//      virtual void after(Integer const &val) {};
+//
+//      virtual void before(Float const &val) {};
+//      virtual void after(Float const &val) {};
+//
+//      virtual void before(Ratio const &val) {};
+//      virtual void after(Ratio const &val) {};
 
       virtual void before(Symbol const &val) {};
       virtual void after(Symbol const &val) {};
@@ -77,24 +81,13 @@ namespace punch{
       virtual ExpressionVisitor* derived()  = 0;
     };
 
-
-    class MutatingExpressionVisitor {
-    public:
-      virtual ~MutatingExpressionVisitor() { };
-
-      virtual void visit(Expression const *) = 0;
-
-    private:
-      virtual MutatingExpressionVisitor* derived() = 0;
-    };
-
     template <typename Derived>
     class RecursiveVisitor : public ExpressionVisitor {
     public:
 
       RecursiveVisitor(int starting_level) : level(starting_level) {}
 
-      void visit(Expression const * expression) {
+      void visit(Expression const * expression) override {
         if (expression) {
           handle_expression(expression);
         }
@@ -105,7 +98,7 @@ namespace punch{
 
     private:
 
-      ExpressionVisitor* derived() {
+      ExpressionVisitor* derived() override {
         return static_cast<Derived*>(this);
       }
 
@@ -114,31 +107,37 @@ namespace punch{
         return as_type<Expression, e_type>(expression);
       }
 
-      void handle_expression(Expression const * expression) {
+      void handle_expression(Expression const * const expression) {
         if (expression->type() == ExpressionType::Keyword) {
           auto expr = _cast<Keyword>(expression);
 
           derived()->before(*expr);
           derived()->after(*expr);
         }
-        else if (expression->type() == ExpressionType::Integer) {
-          auto expr = _cast<Integer>(expression);
+        else if (expression->type() == ExpressionType::Number) {
+          auto expr = _cast<Number>(expression);
 
           derived()->before(*expr);
           derived()->after(*expr);
         }
-        else if (expression->type() == ExpressionType::Float) {
-          auto expr = _cast<Float>(expression);
-
-          derived()->before(*expr);
-          derived()->after(*expr);
-        }
-        else if (expression->type() == ExpressionType::Ratio) {
-          auto expr = _cast<Ratio>(expression);
-
-          derived()->before(*expr);
-          derived()->after(*expr);
-        }
+//        else if (expression->type() == ExpressionType::Integer) {
+//          auto expr = _cast<Integer>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
+//        else if (expression->type() == ExpressionType::Float) {
+//          auto expr = _cast<Float>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
+//        else if (expression->type() == ExpressionType::Ratio) {
+//          auto expr = _cast<Ratio>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
         else if (expression->type() == ExpressionType::Symbol) {
           auto expr = _cast<Symbol>(expression);
 
@@ -217,10 +216,166 @@ namespace punch{
           derived()->after(*expr);
           level--;
         }
+        else {
+          assert(false);
+        }
       }
     };
 
     #define Derive_RecursiveVisitor(Type) class Type: public RecursiveVisitor<Type>
+
+    class UpgradingExpressionVisitor {
+    public:
+      virtual ~UpgradingExpressionVisitor() { };
+
+      virtual void upgrade(SharedExpression &) = 0;
+
+      virtual void upgrade(std::list<SharedExpression>& expressions) = 0;
+
+      virtual void handle(Keyword const &val, SharedExpression& original) {}
+      virtual void handle(Number const &val, SharedExpression& original) {}
+      virtual void handle(Symbol const &val, SharedExpression& original) {}
+      virtual void handle(Symbolic const &val, SharedExpression& original) {}
+      virtual void handle(Map const &val, SharedExpression& original) {}
+      virtual void handle(Set const &val, SharedExpression& original) {}
+      virtual void handle(String const &val, SharedExpression& original) {}
+      virtual void handle(Vector const &val, SharedExpression& original) {}
+
+    private:
+      virtual UpgradingExpressionVisitor* derived() = 0;
+    };
+
+    template <typename Derived>
+    class RecursiveUpgradingVisitor : public UpgradingExpressionVisitor {
+    public :
+      RecursiveUpgradingVisitor() {}
+
+      void upgrade(SharedExpression & expression) override {
+          handle_expression(expression);
+      }
+
+      void upgrade(std::list<SharedExpression>& expressions ) override {
+        for (auto it = expressions.begin(); it != expressions.end(); ++it) {
+          upgrade(*it);
+        }
+      }
+
+    protected:
+      int level = 0;
+
+      template <typename e_type>
+      e_type * _cast(SharedExpression expression) {
+        return const_cast<e_type*>(as_type<Expression, e_type>(&*expression));
+      }
+
+    private:
+
+      UpgradingExpressionVisitor* derived() override {
+        return static_cast<Derived*>(this);
+      }
+
+      void handle_expression(SharedExpression & expression) {
+        if (expression->type() == ExpressionType::Keyword) {
+          auto kw = _cast<Keyword>(expression);
+
+          derived()->handle(*kw, expression);
+        }
+        else if (expression->type() == ExpressionType::Number) {
+          auto number = _cast<Number>(expression);
+
+          derived()->handle(*number, expression);
+        }
+//        else if (expression->type() == ExpressionType::Integer) {
+//          auto expr = _cast<Integer>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
+//        else if (expression->type() == ExpressionType::Float) {
+//          auto expr = _cast<Float>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
+//        else if (expression->type() == ExpressionType::Ratio) {
+//          auto expr = _cast<Ratio>(expression);
+//
+//          derived()->before(*expr);
+//          derived()->after(*expr);
+//        }
+        else if (expression->type() == ExpressionType::Symbol) {
+          auto sym = _cast<Symbol>(expression);
+
+          derived()->handle(*sym, expression);
+        }
+        else if (expression->type() == ExpressionType::Symbolic) {
+          level++;
+
+          auto symbolic = _cast<Symbolic>(expression);
+
+          auto inner = symbolic->get_inner();
+          this->upgrade(*inner);
+
+          derived()->handle(*symbolic, expression);
+          level--;
+        }
+        else if (expression->type() == ExpressionType::Map) {
+          level++;
+
+          auto map = _cast<Map>(expression);
+
+          auto inner = map->get_inner();
+          auto it = inner->begin();
+
+          while (it != inner->end()) {
+
+            (*it)->accept(*this);
+            ++it;
+            (*it)->accept(*this);
+
+          }
+
+          derived()->handle(*map, expression);
+          level--;
+        }
+        else if (expression->type() == ExpressionType::Set) {
+          level++;
+
+          auto set = _cast<Set>(expression);
+
+          auto inner = set->get_inner();
+          for (auto it = inner->begin(); it != inner->end(); ++it) {
+            (*it)->accept(*this);
+          }
+
+          derived()->handle(*set, expression);
+          level--;
+        }
+        else if (expression->type() == ExpressionType::String) {
+          auto s = _cast<String>(expression);
+
+          derived()->handle(*s, expression);
+        }
+        else if (expression->type() == ExpressionType::Vector) {
+          level++;
+
+          auto vec = _cast<Vector>(expression);
+
+          auto inner = vec->get_inner();
+          for (auto it = inner->begin(); it != inner->end(); ++it) {
+            (*it)->accept(*this);
+          }
+
+          derived()->handle(*vec, expression);
+          level--;
+        }
+        else {
+          assert(false);
+        }
+      }
+    };
+
+    #define Derive_RecursiveMutatingVisitor(Type) class Type: public RecursiveMutatingVisitor<Type>
 
     Derive_RecursiveVisitor(LoggingVisitor) {
 
@@ -230,9 +385,10 @@ namespace punch{
       LoggingVisitor(std::ostream &os, int starting_level) : RecursiveVisitor(starting_level), os(os) {}
 
       void before(Keyword const &val) override;
-      void before(Integer const &val) override;
-      void before(Float const &val) override;
-      void before(Ratio const &val) override;
+      void before(Number const &val) override;
+//      void before(Integer const &val) override;
+//      void before(Float const &val) override;
+//      void before(Ratio const &val) override;
       void before(Symbol const &val) override;
       void before(Symbolic const &val) override;
       void after(Symbolic const &val) override;
@@ -265,7 +421,16 @@ namespace punch{
       std::ostream& os;
 
     };
+
+    class NumberParser : public RecursiveUpgradingVisitor<NumberParser> {
+    public:
+      NumberParser() {}
+
+      void handle(Symbol const &val, SharedExpression& original) override;
+      //void handle(Symbol const &val, SharedExpression altered) override;
+    };
   }
 }
+
 
 #endif //PUNCH_LANG_VISITORS_HPP
