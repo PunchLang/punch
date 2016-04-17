@@ -9,22 +9,17 @@
  */
 
 #include <lang/reader_expressions.hpp>
+#include <lang/visitors.hpp>
 #include <lang/reader.hpp>
-#include <lang/util.hpp>
 
 using namespace punch::lang;
 using namespace punch::lang::expressions;
-
-template <typename T>
-T const *as(const Expression* e) {
-  return as_type<Expression, T>(e);
-}
 
 int Symbolic::n() const {
   return inner.size();
 }
 
-std::list<SharedExpression> const * const Symbolic::get_inner() const {
+std::list<SharedExpression> const * Symbolic::get_inner() const {
   return &inner;
 }
 
@@ -32,7 +27,7 @@ std::list<SharedExpression> * Symbolic::get_inner() {
   return &inner;
 }
 
-std::list<SharedExpression> const * const Map::get_inner() const {
+std::list<SharedExpression> const * Map::get_inner() const {
   return &inner;
 }
 
@@ -40,7 +35,7 @@ std::list<SharedExpression> * Map::get_inner() {
   return &inner;
 }
 
-std::list<SharedExpression> const * const Vector::get_inner() const {
+std::list<SharedExpression> const * Vector::get_inner() const {
   return &inner;
 }
 
@@ -48,7 +43,7 @@ std::list<SharedExpression> * Vector::get_inner() {
   return &inner;
 }
 
-std::list<SharedExpression> const * const Set::get_inner() const {
+std::list<SharedExpression> const * Set::get_inner() const {
   return &inner;
 }
 
@@ -73,29 +68,6 @@ void Number::accept(UpgradingExpressionVisitor &v) {
   auto sh = shared_from_this();
   v.upgrade(sh);
 }
-//void Integer::accept(ExpressionVisitor &v) const {
-//  v.visit(this);
-//}
-//
-//void Integer::accept(MutatingExpressionVisitor &v) {
-//  v.visit(shared_from_this());
-//}
-//
-//void Float::accept(ExpressionVisitor &v) const {
-//  v.visit(this);
-//}
-//
-//void Float::accept(MutatingExpressionVisitor &v) {
-//  v.visit(shared_from_this());
-//}
-//
-//void Ratio::accept(ExpressionVisitor &v) const {
-//  v.visit(this);
-//}
-//
-//void Ratio::accept(MutatingExpressionVisitor &v) {
-//  v.visit(shared_from_this());
-//}
 
 void Symbol::accept(ExpressionVisitor &v) const {
   v.visit(this);
@@ -170,33 +142,6 @@ void Vector::accept(UpgradingExpressionVisitor &v) {
       return false;
     }
   }
-
-//  bool Integer::equal_to(const Expression* other) const {
-//    if (auto p = as<Integer>(other)) {
-//      return value == p->value;
-//    }
-//    else {
-//      return false;
-//    }
-//  }
-//
-//  bool Float::equal_to(const Expression* other) const {
-//    if (auto p = as<Float>(other)) {
-//      return  std::fabs(value - p->value) < std::numeric_limits<double>::epsilon();
-//    }
-//    else {
-//      return false;
-//    }
-//  }
-//
-//  bool Ratio::equal_to(const Expression* other) const {
-//    if (auto p = as<Ratio>(other)) {
-//      return numerator == p->numerator && denominator == p->denominator;
-//    }
-//    else {
-//      return false;
-//    }
-//  }
 
   bool Symbol::equal_to(const Expression* other) const {
     if (auto p = as<Symbol>(other)) {

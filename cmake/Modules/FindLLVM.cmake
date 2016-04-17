@@ -191,6 +191,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
     endif()
 endif()
 
+# On Clang replace -Wno-maybe-uninitialized with -Wno-uninitialized
+if(CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
+    string(REPLACE "-Wno-maybe-uninitialized" "-Wno-uninitialized" LLVM_CXXFLAGS "${LLVM_CXXFLAGS}")
+endif()
+
 string(REGEX REPLACE "([0-9]+).*" "\\1" LLVM_VERSION_MAJOR "${LLVM_VERSION_STRING}" )
 string(REGEX REPLACE "[0-9]+\\.([0-9]+).*[A-Za-z]*" "\\1" LLVM_VERSION_MINOR "${LLVM_VERSION_STRING}" )
 

@@ -9,7 +9,6 @@
  */
 
 #include <lang/reader.hpp>
-#include <boost/regex.hpp>
 
 namespace punch {
   namespace lang {
@@ -36,15 +35,6 @@ namespace punch {
       else if (Number::accepts(cur_tok)) {
         ret(Number::create(this, msg));
       }
-//      else if (Integer::accepts(cur_tok)) {
-//        ret(Integer::create(this, msg));
-//      }
-//      else if (Float::accepts(cur_tok)) {
-//        ret(Float::create(this, msg));
-//      }
-//      else if (Ratio::accepts(cur_tok)) {
-//        ret(Ratio::create(this, msg));
-//      }
       else if (Symbol::accepts(cur_tok)) {
         ret(Symbol::create(this, msg));
       }
@@ -132,46 +122,9 @@ namespace punch {
               (tok.value.length() > 1 && sign_start.find(tok.value.at(0)) != sign_start.end()));
     }
 
-    const boost::regex int_pattern(
-        "([-+]?)(([0]?)|([1-9][0-9]*)|0[xX]([0-9A-Fa-f]+)|0([0-7]+)|([1-9][0-9]?)[rR]([0-9A-Za-z]+)|0[0-9]+)(N)?");
-    const boost::regex float_pattern("([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)(M)?");
-    const boost::regex ratio_pattern("([-+]?[0-9]+)/([0-9]+)");
-
     bool Number::accepts(Token &tok) {
       return might_be_number(tok);
     }
-
-
-//    bool Integer::accepts(Token &tok) {
-//
-//      if (might_be_number(tok)) {
-//        boost::smatch match;
-//        return boost::regex_match(tok.value, match, int_pattern);
-//      }
-//
-//      return false;
-//    }
-//
-//    bool Float::accepts(Token &tok) {
-//
-//      const boost::regex float_regex(float_pattern);
-//
-//      if (might_be_number(tok)) {
-//        return boost::regex_match(tok.value, float_regex);
-//      }
-//
-//      return false;
-//    }
-//
-//    bool Ratio::accepts(Token &tok) {
-//      const boost::regex ratio_regex(ratio_pattern);
-//
-//      if (might_be_number(tok)) {
-//        return boost::regex_match(tok.value, ratio_regex);
-//      }
-//
-//      return false;
-//    }
 
     bool Symbol::accepts(Token &tok) {
       return tok.type == TokenType::Literal;
@@ -206,113 +159,6 @@ namespace punch {
     UExpression Number::create(Reader *r, std::string &error) {
       return make_unique<Number>(r->current_token()->value);
     }
-
-//    UExpression Integer::create(Reader *r, std::string &error) {
-//
-//      /* regex breaks first number after [+-], so we check for it and remove it*/
-//
-//      bool negate = false;
-//      std::string input = r->current_token()->value;
-//      if (sign_start.find(input.at(0)) != sign_start.end()) {
-//        if (input.find("-") == 0) {
-//          negate = true;
-//        }
-//        input = input.substr(1);
-//      }
-//
-//      boost::smatch match;
-//      boost::regex_match(input, match, int_pattern);
-//
-//      //bool negate = (n.matched && std::string(n.first, n.second).compare("-") == 0);
-//
-//      if (match[3].matched) {
-//        if (match[9].matched) {
-//          // not yet bigint thingies.
-//          return make_unique<Integer>(0);
-//        }
-//
-//        return make_unique<Integer>(0);
-//      }
-//
-//      auto n = match[1];
-//
-//      int group = 0;
-//      int radix = 10;
-//
-//      if (match[4].matched) {
-//        radix = 10;
-//        group = 4;
-//      }
-//      else if (match[5].matched) {
-//        radix = 16;
-//        group = 5;
-//      }
-//      else if (match[6].matched) {
-//        radix = 8;
-//        group = 6;
-//      }
-//      else if (match[8].matched) {
-//        auto r = match[7];
-//        radix = std::stoi(std::string(r.first, r.second));
-//        group = 8;
-//      }
-//
-//      if (group == 0) {
-//        error = "Invalid integer";
-//        return make_unique<Integer>();
-//      }
-//
-//      auto m = match[group];
-//      //std::cout << m.length() << " INT! " << group << " : [" << std::string(m.first, m.second)  << "] : " <<  radix << std::endl;
-//
-//      long value = std::stol(std::string(m.first, m.second), nullptr, radix);
-//      if (negate) {
-//        value = -value;
-//      }
-//
-////  if(match[9].matched) {
-////    // bigint not supported
-////  }
-//
-//      return make_unique<Integer>(value);
-//    }
-//
-//    UExpression Float::create(Reader *r, std::string &error) {
-//      boost::smatch match;
-//      boost::regex_match(r->current_token()->value, match, float_pattern);
-//
-//      std::string value = r->current_token()->value;
-//
-//      if (match[4].matched) {
-//        // no decimals yet
-//        value = value.substr(0, value.size() - 1);
-//      }
-//
-//      double d = std::stod(value);
-//
-//      return make_unique<Float>(d);
-//    }
-//
-//    UExpression Ratio::create(Reader *r, std::string &error) {
-//      boost::smatch match;
-//      std::string input = r->current_token()->value;
-//      boost::regex_match(input, match, ratio_pattern);
-//
-//      auto n = match[1];
-//      std::string n_str(n.first, n.second);
-//
-//      if (n_str.find('+') == 0) {
-//        n_str = n_str.substr(1);
-//      }
-//
-//      auto d = match[2];
-//      std::string d_str(d.first, d.second);
-//
-//      long numerator = stol(n_str, 0, 10);
-//      long denominator = stol(d_str, 0, 10);
-//
-//      return make_unique<Ratio>(numerator, denominator);
-//    }
 
     SharedExpression Symbol::create(Reader *r, std::string &error) {
       return make_unique<Symbol>(r->current_token()->value);

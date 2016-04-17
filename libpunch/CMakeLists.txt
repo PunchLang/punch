@@ -10,7 +10,7 @@ FILE(GLOB libpunch_source "*.cpp")
 
 # Declare the library
 add_library(libpunch STATIC
-        ${libpunch_source})
+        ${libpunch_source} number_expressions.cpp)
 
 include_directories(include)
 

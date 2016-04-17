@@ -13,7 +13,6 @@
 #define PUNCH_LANG_READER_EXPRESSIONS_HPP
 
 #include <lang/expression.hpp>
-#include <lang/visitors.hpp>
 
 namespace punch {
   namespace lang {
@@ -51,6 +50,7 @@ namespace punch {
       class Number : public Expression {
       public:
         Number(std::string value) : value (value) {}
+        Number(const Number & other) : value(value) {}
         Number(Number &&other) : value(std::move(other.value)) {}
 
         static bool accepts(Token &tok);
@@ -68,76 +68,6 @@ namespace punch {
       protected:
         bool equal_to(const Expression *other) const override;
       };
-
-//      class Integer : public Expression {
-//      public:
-//        Integer(long value) : value(value) { }
-//        Integer(Integer &&other) : value(std::move(other.value)) { }
-//
-//        static bool accepts(Token &);
-//
-//        static UExpression create(Reader *, std::string &error);
-//
-//        void accept(ExpressionVisitor &) const override;
-//        void accept(UpgradingExpressionVisitor &) override;
-//
-//        ExpressionType type() const override {
-//          return ExpressionType::Integer;
-//        }
-//
-//        const long value;
-//
-//      protected:
-//        bool equal_to(const Expression *other) const override;
-//
-//      };
-//
-//      class Float : public Expression {
-//      public:
-//        Float(double value) : value(value) { }
-//        Float(Float &&other) : value(std::move(other.value)) { }
-//
-//        static bool accepts(Token &);
-//
-//        static UExpression create(Reader *, std::string &error);
-//
-//        void accept(ExpressionVisitor &) const override;
-//        void accept(UpgradingExpressionVisitor &) override;
-//
-//        ExpressionType type() const override {
-//          return ExpressionType::Float;
-//        }
-//
-//        const double value;
-//
-//      protected:
-//        bool equal_to(const Expression *other) const override;
-//
-//      };
-//
-//      class Ratio : public Expression {
-//      public:
-//        Ratio(long n, long d) : numerator(n), denominator(d) { }
-//        Ratio(Ratio &&other) : numerator(std::move(other.numerator)), denominator(std::move(other.denominator)) { }
-//
-//        static bool accepts(Token &);
-//
-//        static UExpression create(Reader *, std::string &error);
-//
-//        void accept(ExpressionVisitor &) const override;
-//        void accept(UpgradingExpressionVisitor &) override;
-//
-//        ExpressionType type() const override {
-//          return ExpressionType::Ratio;
-//        }
-//
-//        const long numerator;
-//        const long denominator;
-//
-//      protected:
-//        bool equal_to(const Expression *other) const override;
-//
-//      };
 
       class Symbol : public Expression {
       public:
@@ -181,7 +111,7 @@ namespace punch {
           return ExpressionType::Symbolic;
         }
 
-        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * get_inner() const;
         std::list<SharedExpression> * get_inner();
 
       protected:
@@ -207,7 +137,7 @@ namespace punch {
           return ExpressionType::Map;
         }
 
-        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * get_inner() const;
         std::list<SharedExpression> * get_inner();
 
       protected:
@@ -233,7 +163,7 @@ namespace punch {
           return ExpressionType::Set;
         }
 
-        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * get_inner() const;
         std::list<SharedExpression> * get_inner();
 
       protected:
@@ -281,7 +211,7 @@ namespace punch {
           return ExpressionType::Vector;
         }
 
-        std::list<SharedExpression> const * const get_inner() const;
+        std::list<SharedExpression> const * get_inner() const;
         std::list<SharedExpression> * get_inner();
 
       protected:

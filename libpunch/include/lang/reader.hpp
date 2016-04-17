@@ -77,7 +77,7 @@ namespace punch {
         return tokenizer->next(cur_tok);
       }
 
-      Token const * const current_token() {
+      Token const * current_token() {
         if (has_token) {
           return &cur_tok;
         }

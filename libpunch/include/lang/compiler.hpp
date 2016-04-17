@@ -14,6 +14,7 @@
 
 #include <string>
 #include <lang/environment.hpp>
+#include <lang/visitors.hpp>
 
 namespace punch {
   namespace lang {

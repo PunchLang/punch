@@ -29,9 +29,9 @@ namespace punch {
       enum class ExpressionType {
         Keyword,
         Number,
-//        Integer,
-//        Float,
-//        Ratio,
+        Integer,
+        Float,
+        Ratio,
         Symbol,
         Symbolic,
         Map,
@@ -41,6 +41,11 @@ namespace punch {
       };
 
       class Expression;
+
+      template <typename T>
+      T const *as(const Expression* e) {
+        return as_type<Expression, T>(e);
+      }
 
       typedef std::unique_ptr<Expression> UExpression;
       typedef std::shared_ptr<Expression> SharedExpression;
@@ -59,6 +64,10 @@ namespace punch {
         virtual bool equal_to(const Expression *e) const = 0;
 
       };
+
+      inline bool operator==(const Expression &lhs, const Expression &rhs) {
+        return lhs.type() == rhs.type() && lhs.equal_to(&rhs);
+      }
 
       inline bool operator==(const UExpression &lhs, const UExpression &rhs) {
         return lhs->type() == rhs->type() && lhs->equal_to(&*rhs);

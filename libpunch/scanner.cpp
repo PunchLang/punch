@@ -73,9 +73,9 @@ position StringScanner::get_position() const {
 
 
 LineScanner::LineScanner(const std::string& file) :
-  current (std::make_tuple(0, 0)),
-  next (std::make_tuple(0,1)),
-  previous (std::make_tuple(0,-1))
+  current (std::make_tuple(1, 1)),
+  next (std::make_tuple(1,2)),
+  previous (std::make_tuple(1,0))
 {
   std::ifstream infile(file);
 
@@ -89,15 +89,15 @@ LineScanner::LineScanner(const std::string& file) :
 
 boost::optional<char> LineScanner::read_char(::position pos) {
 
-  int l,c;
+  unsigned int l,c;
   std::tie(l,c) = pos;
 
-  if (l < this->lines.size()) {
-    if (c < 0) {
+  if (l - 1 < this->lines.size()) {
+    if (c < 1) {
       return boost::none;
     }
-    else if (c < std::get<0>(this->lines.at(l))) {
-      return std::get<1>(this->lines.at(l)).at(c);
+    else if (c - 1 < std::get<0>(this->lines.at(l-1))) {
+      return std::get<1>(this->lines.at(l-1)).at(c-1);
     }
     else { // insert \n as last char of line;
       return '\n';
@@ -121,25 +121,25 @@ boost::optional<char> LineScanner::previous_char() {
 }
 
 void LineScanner::pop() {
-  int cl, cc;
+  unsigned int cl, cc;
   std::tie(cl, cc) = this->current;
   this->previous = this->current;
 
-  if (cl < this->lines.size()) {
-    if (cc >= std::get<0>(this->lines.at(cl))) {
-      this->current = std::make_tuple(cl + 1, 0);
+  if (cl - 1 < this->lines.size()) {
+    if (cc - 1 >= std::get<0>(this->lines.at(cl - 1))) {
+      this->current = std::make_tuple(cl + 1, 1);
     }
     else {
       this->current = std::make_tuple(cl, cc + 1);
     }
   }
 
-  int nl, nc;
+  unsigned int nl, nc;
   std::tie(nl, nc) = this->next;
 
-  if (nl < this->lines.size()) {
-    if (nc >= std::get<0>(this->lines.at(nl))) {
-      this->next = std::make_tuple(nl + 1, 0);
+  if (nl - 1 < this->lines.size()) {
+    if (nc - 1 >= std::get<0>(this->lines.at(nl - 1))) {
+      this->next = std::make_tuple(nl + 1, 1);
     }
     else {
       this->next = std::make_tuple(nl, nc + 1);
@@ -149,14 +149,14 @@ void LineScanner::pop() {
 
 void LineScanner::flush_line() {
 
-  this->previous = std::make_tuple(std::get<0>(this->current) + 1,  -1);
-  this->current = std::make_tuple(std::get<0>(this->current) + 1,  0);
-  this->next = std::make_tuple(std::get<0>(this->next) + 1, 1);
+  this->previous = std::make_tuple(std::get<0>(this->current) + 1,  0);
+  this->current = std::make_tuple(std::get<0>(this->current) + 1,  1);
+  this->next = std::make_tuple(std::get<0>(this->next) + 1, 2);
 }
 
 position LineScanner::get_position() const {
   int l, c;
   std::tie(l,c) = this->current;
 
-  return std::make_tuple(l + 1, c + 1);
+  return std::make_tuple(l, c);
 }
